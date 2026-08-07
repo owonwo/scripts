@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "Transform React function components from arrow functions to function declarations",
   "bin": {
-    "react-component-transformer": "./dist/cli.js"
+    "react-component-transformer": "./dist/cli.mjs"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rolldown -c rolldown.config.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.mjs ./test-project --debug;"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "keywords": [],
   "author": "",
@@ -18,11 +22,15 @@
     "@effect/cli": "^0.76.0",
     "@effect/platform": "^0.97.1",
     "@effect/platform-node": "^0.108.0",
+    "@effect/schema": "^0.75.5",
     "effect": "^3.22.0",
+    "fast-fs-hash": "^0.0.3",
+    "ignore": "^7.0.6",
     "ts-morph": "^28.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
+    "rolldown": "^1.0.0-beta.9-commit.67cd3ff",
     "vitest": "^4.1.10"
   }
 }

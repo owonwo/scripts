@@ -74,8 +74,7 @@ describe("transformComponents", () => {
     expect(result.success).toBe(true);
     expect(result.componentsFound).toBe(1);
     expect(output).toMatchInlineSnapshot(`
-    "import React from "react";
-    type BoxProps = {
+    "type BoxProps = {
           boxes: number,
           count: string
         };
@@ -109,9 +108,7 @@ describe("transformComponents", () => {
     expect(result.success).toBe(true);
     expect(result.componentsFound).toBe(1);
     expect(output).toMatchInlineSnapshot(`
-    "import React from "react";
-
-    function SimpleComponent() {
+    "function SimpleComponent() {
     }
     "
     `);
@@ -130,9 +127,7 @@ const Box = () => {
     expect(result.success).toBe(true);
     expect(result.componentsFound).toBe(1);
     expect(output).toMatchInlineSnapshot(`
-    "import React from "react";
-
-    const notAComponent = "just a string";
+    "const notAComponent = "just a string";
 
     function Box() {
     }
@@ -151,9 +146,7 @@ const Box = () => {
 
     expect(result.success).toBe(true);
     expect(output).toMatchInlineSnapshot(`
-    "import React from "react";
-
-    function Box() {
+    "function Box() {
     }
     "
     `);
@@ -191,8 +184,7 @@ const Box = () => {
     expect(result.success).toBe(true);
     expect(result.componentsFound).toBe(1);
     expect(output).toMatchInlineSnapshot(`
-    "import React from "react";
-    export type BoxProps = {
+    "export type BoxProps = {
           value: string
         };
 
@@ -220,5 +212,57 @@ const Box = () => {
     const result = transformComponents(filePath);
     expect(result.success).toBe(false);
     expect(result.message).toBe("Not a TSX file");
+  });
+
+  it("renames ...props to ...restProps to avoid naming conflict", () => {
+    const input = `const Avatar = ({
+  size = 80,
+  disabled,
+  className,
+  ...props
+}: {
+  size?: number;
+  disabled?: boolean;
+  className?: string;
+  [key: string]: any;
+}) => {
+  return <div {...props} className={className} />;
+};`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result.success).toBe(true);
+    expect(result.componentsFound).toBe(1);
+    expect(output).toContain("...restProps");
+    expect(output).not.toContain("...props");
+  });
+
+  it("renames ...props to ...restProps in function declaration with named type", () => {
+    const input = `interface AvatarProps {
+  size?: number;
+  disabled?: boolean;
+  className?: string;
+  [key: string]: any;
+}
+
+function Avatar({
+  size = 80,
+  disabled,
+  className,
+  ...props
+}: AvatarProps) {
+  return <div {...props} className={className} />;
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result.success).toBe(true);
+    expect(result.componentsFound).toBe(1);
+    expect(output).toContain("...restProps");
+    expect(output).not.toContain("...props");
   });
 });
