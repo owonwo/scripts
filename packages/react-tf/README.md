@@ -1,11 +1,6 @@
----
-title: "React Component Transformer"
-description: "A CLI tool that transforms React function components from arrow functions to function declarations with type extraction."
----
-
 # React Component Transformer
 
-A CLI tool that transforms React function components from arrow functions to function declarations, with type extraction for inline props.
+A CLI tool that transforms React codebase to the Wigxel coding standards
 
 ## Features
 
@@ -21,24 +16,30 @@ A CLI tool that transforms React function components from arrow functions to fun
 ## Usage
 
 ```bash
-# Basic usage
-react-component-transformer ./src
+# Basic usage (current directory)
+nurm
+
+# Scan specific directory
+nurm ./src
+
+# Scan multiple directories
+nurm app components lib
 
 # With debug logging
-react-component-transformer ./src --debug
+nurm ./src --debug
 
 # Force reprocess (ignore cache)
-react-component-transformer ./src --force
+nurm ./src --force
 
 # Specify number of workers
-react-component-transformer ./src --workers 8
+nurm ./src --workers 8
 ```
 
 ## Options
 
 | Option        | Alias | Description                      | Default |
 | ------------- | ----- | -------------------------------- | ------- |
-| `--directory` | -     | Directory to scan for .tsx files | `.`     |
+| `--directory` | -     | Directories to scan (repeatable) | `.`     |
 | `--debug`     | `-d`  | Enable debug logging             | `false` |
 | `--workers`   | `-w`  | Number of worker threads         | `4`     |
 | `--force`     | `-f`  | Force reprocess (ignore cache)   | `false` |
@@ -108,7 +109,7 @@ function Avatar(props: AvatarProps) {
 
 ## Cache
 
-The tool maintains a `.transformer-cache.json` file in the target directory that stores content hashes of processed files. This allows it to skip files that haven't changed since the last run.
+The tool uses content-hash caching stored in `node_modules/.cache/react-component-transformer/transformer-cache.fsh` at the project root. It automatically skips unchanged files between runs.
 
 To force reprocessing of all files, use the `--force` flag.
 

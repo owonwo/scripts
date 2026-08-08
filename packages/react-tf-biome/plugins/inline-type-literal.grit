@@ -1,0 +1,13 @@
+engine biome(1.0)
+language js(typescript)
+
+// Match: ({ prop }: { prop: Type }) — inline type literal in parameter
+// Should be extracted to a named type alias (e.g., ComponentProps)
+JsFormalParameter(type_annotation = $type) as $param where {
+    $type <: r":\s*\{[\s\S]*\}",
+    register_diagnostic(
+        span = $param,
+        message = "Inline type literal should be extracted to a named type alias.",
+        severity = "warn"
+    )
+}

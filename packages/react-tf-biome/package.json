@@ -1,0 +1,36 @@
+{
+  "name": "@wigxel/react-tf-biome",
+  "version": "0.0.1",
+  "description": "GritQL lint rules for Wigxel React component coding standards",
+  "license": "ISC",
+  "type": "module",
+  "bin": {
+    "react-tf-biome": "./bin/setup.js",
+    "@wigxel/react-tf-biome": "./bin/setup.js"
+  },
+  "files": [
+    "bin",
+    "plugins"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+"dependencies": {
+    "@effect/cli": "^0.69.2",
+    "@effect/platform": "^0.97.1",
+    "@effect/platform-node": "^0.108.1",
+    "effect": "^3.22.0"
+  },
+  "peerDependencies": {
+    "@biomejs/biome": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@biomejs/biome": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0"
+  }
+}

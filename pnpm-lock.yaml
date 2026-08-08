@@ -38,17 +38,17 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
 
-  packages/react-component-transformer:
+  packages/react-tf:
     dependencies:
       '@effect/cli':
-        specifier: ^0.76.0
-        version: 0.76.0(@effect/platform@0.97.1(effect@3.22.0))(@effect/printer-ansi@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(@effect/printer@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
+        specifier: ^0.77.0
+        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.0))(@effect/printer-ansi@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(@effect/printer@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
       '@effect/platform':
         specifier: ^0.97.1
         version: 0.97.1(effect@3.22.0)
       '@effect/platform-node':
         specifier: ^0.108.0
-        version: 0.108.0(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
+        version: 0.108.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
       '@effect/schema':
         specifier: ^0.75.5
         version: 0.75.5(effect@3.22.0)
@@ -72,6 +72,28 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(vite@8.2.1(@types/node@26.2.0)(yaml@2.9.0))
 
+  packages/react-tf-biome:
+    dependencies:
+      '@biomejs/biome':
+        specifier: '>=2.0.0'
+        version: 2.5.7
+      '@effect/cli':
+        specifier: ^0.69.2
+        version: 0.69.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/printer-ansi@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(@effect/printer@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
+      '@effect/platform':
+        specifier: ^0.97.1
+        version: 0.97.1(effect@3.22.0)
+      '@effect/platform-node':
+        specifier: ^0.108.1
+        version: 0.108.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
+      effect:
+        specifier: ^3.22.0
+        version: 3.22.0
+    devDependencies:
+      '@types/node':
+        specifier: ^26.2.0
+        version: 26.2.0
+
 packages:
 
   '@babel/code-frame@7.29.7':
@@ -86,8 +108,69 @@ packages:
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
 
+  '@biomejs/biome@2.5.7':
+    resolution: {integrity: sha512-zr8K/DcY5tYsQOQwqMJ0AWElo6QgmgNI7idXgXLhevVszlt8RGVpesEJPqx3ThazLaOwjJ5Y8fz3BtH5fGZNsw==}
+    engines: {node: '>=14.21.3'}
+    hasBin: true
+
+  '@biomejs/cli-darwin-arm64@2.5.7':
+    resolution: {integrity: sha512-vxo/Ls3/PYdQWyLhYYcgMOCzQypAjcY+iihS8M0wW03l16TCLW4zqZzGo75gm1VdCMj38hTVZ31KBWrZ4G9dJw==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@biomejs/cli-darwin-x64@2.5.7':
+    resolution: {integrity: sha512-Cd3Ga61amT/Yl/0x8elP5hhGYaFy4bw6WuysTgf7oo8TA5tJ5A1k+DkVoJ2BHbTVil51gTX9VPzArnrlLJ3Kyg==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@biomejs/cli-linux-arm64-musl@2.5.7':
+    resolution: {integrity: sha512-xPI5yB6XlpDbNkS+bm1t42olw5c4l3UrlOmLg7KtLJvjvkNF/1V4tnUgfkylGIeb3u/T+BzMGYqgQhzjAoJzuQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@biomejs/cli-linux-arm64@2.5.7':
+    resolution: {integrity: sha512-rR2QE0yF2GYSuYuKIa7pKvODGJqnOH+2eDREAM8wV+mWKSkMQKdAp4zXEZfTaxY8PMoNONnpgSWcBCyLDPDOKg==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@biomejs/cli-linux-x64-musl@2.5.7':
+    resolution: {integrity: sha512-rE5VZi+qtmPgQH+l7jVxYoZ18b/TiHEhulhMpjmCZH1PltSbjRcxNWywC3HZ9tYottG7ORkeTtoscBilKSBm0g==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+
+  '@biomejs/cli-linux-x64@2.5.7':
+    resolution: {integrity: sha512-FQgqJhscrqJUFptGaRSUJWlXAExwWcDwLuK49dvKfkQ1bB5SEEyFssnsxQY83Xm6jR0EbbX3+8+D5bfvYqUG2Q==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+
+  '@biomejs/cli-win32-arm64@2.5.7':
+    resolution: {integrity: sha512-Oq4x0CCwP4jirrcTywXs5kOGZ4v5vuEP+gWrbtjApOA2CL9F3F9GlIdQIci8AKSCa/zURanMRpX/4wQ7Am6hHg==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@biomejs/cli-win32-x64@2.5.7':
+    resolution: {integrity: sha512-V+0wu/nrj2S+MhP4EQ0uHNolP0IALEsz45pg0WoKkHfDeh0+ItHwP/p7bX5RPoMOl9NkpHYWdYPhIcy2mACHvQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [win32]
+
   '@blazediff/core@1.9.1':
     resolution: {integrity: sha512-ehg3jIkYKulZh+8om/O25vkvSsXXwC+skXmyA87FFx6A/45eqOkZsBltMw/TVteb0mloiGT8oGRTcjRAz66zaA==}
+
+  '@effect/cli@0.69.2':
+    resolution: {integrity: sha512-1xYfEzW5f6jGWDb6V6DWTsWbtdp8DgQcchbewnCwKOXnJzF5VsTcfo4lYM4TXk/RAHA1owyq7OaEmeZ+qIt1/w==}
+    peerDependencies:
+      '@effect/platform': ^0.90.5
+      '@effect/printer': ^0.45.0
+      '@effect/printer-ansi': ^0.45.0
+      effect: ^3.17.8
 
   '@effect/cli@0.76.0':
     resolution: {integrity: sha512-6N6u827Brlvf1UF3WMUazUgzZxq3kN/jemj66El7CUNulmlU7ciYKV0UMpETculvkKTfVonHZ5s49Fdz6Ad0cQ==}
@@ -96,6 +179,14 @@ packages:
       '@effect/printer': ^0.50.0
       '@effect/printer-ansi': ^0.50.0
       effect: ^3.22.0
+
+  '@effect/cli@0.77.0':
+    resolution: {integrity: sha512-uVw33bcqPaSu6YZqGf6MyM2CbYsE79mrAnQsDzSFnP8jmnjNfXWrfmWUGK2yy0jXD0wWmVbmvwm4xVFv2Utsog==}
+    peerDependencies:
+      '@effect/platform': ^0.97.1
+      '@effect/printer': ^0.51.0
+      '@effect/printer-ansi': ^0.51.0
+      effect: ^3.22.1
 
   '@effect/cluster@0.60.2':
     resolution: {integrity: sha512-GEODN5kvFJ0L0XSkANcS8s6lfhjrrA8x/ezYUV/lXerqCHf5xo3ZTPUanGMHu5Byvikng0mZDcyNvke2sGjfSQ==}
@@ -136,6 +227,15 @@ packages:
       '@effect/rpc': ^0.76.0
       '@effect/sql': ^0.52.0
       effect: ^3.22.0
+
+  '@effect/platform-node@0.108.1':
+    resolution: {integrity: sha512-BlPW+k/AaVS2ofPGZY1IV3HfLQ3gKGTfkY/jPVOJNOB9NiWb6ufAKOsuNTSAIYP8EzYxTH8tKOENXUXUcANoZA==}
+    peerDependencies:
+      '@effect/cluster': ^0.60.2
+      '@effect/platform': ^0.97.1
+      '@effect/rpc': ^0.76.2
+      '@effect/sql': ^0.52.1
+      effect: ^3.22.1
 
   '@effect/platform@0.97.1':
     resolution: {integrity: sha512-IevWxwmrxCdeXxbXDx/hiOstHtERRigd1nhZSuHgiFEl7NkBmS/5GVWsRacq4NfJN2uCXqggETKNwij15VEpew==}
@@ -1626,9 +1726,64 @@ snapshots:
 
   '@babel/runtime@7.29.7': {}
 
+  '@biomejs/biome@2.5.7':
+    optionalDependencies:
+      '@biomejs/cli-darwin-arm64': 2.5.7
+      '@biomejs/cli-darwin-x64': 2.5.7
+      '@biomejs/cli-linux-arm64': 2.5.7
+      '@biomejs/cli-linux-arm64-musl': 2.5.7
+      '@biomejs/cli-linux-x64': 2.5.7
+      '@biomejs/cli-linux-x64-musl': 2.5.7
+      '@biomejs/cli-win32-arm64': 2.5.7
+      '@biomejs/cli-win32-x64': 2.5.7
+
+  '@biomejs/cli-darwin-arm64@2.5.7':
+    optional: true
+
+  '@biomejs/cli-darwin-x64@2.5.7':
+    optional: true
+
+  '@biomejs/cli-linux-arm64-musl@2.5.7':
+    optional: true
+
+  '@biomejs/cli-linux-arm64@2.5.7':
+    optional: true
+
+  '@biomejs/cli-linux-x64-musl@2.5.7':
+    optional: true
+
+  '@biomejs/cli-linux-x64@2.5.7':
+    optional: true
+
+  '@biomejs/cli-win32-arm64@2.5.7':
+    optional: true
+
+  '@biomejs/cli-win32-x64@2.5.7':
+    optional: true
+
   '@blazediff/core@1.9.1': {}
 
+  '@effect/cli@0.69.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/printer-ansi@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(@effect/printer@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)':
+    dependencies:
+      '@effect/platform': 0.97.1(effect@3.22.0)
+      '@effect/printer': 0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0)
+      '@effect/printer-ansi': 0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0)
+      effect: 3.22.0
+      ini: 4.1.3
+      toml: 3.0.0
+      yaml: 2.9.0
+
   '@effect/cli@0.76.0(@effect/platform@0.97.1(effect@3.22.0))(@effect/printer-ansi@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(@effect/printer@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)':
+    dependencies:
+      '@effect/platform': 0.97.1(effect@3.22.0)
+      '@effect/printer': 0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0)
+      '@effect/printer-ansi': 0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0)
+      effect: 3.22.0
+      ini: 4.1.3
+      toml: 3.0.0
+      yaml: 2.9.0
+
+  '@effect/cli@0.77.0(@effect/platform@0.97.1(effect@3.22.0))(@effect/printer-ansi@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(@effect/printer@0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)':
     dependencies:
       '@effect/platform': 0.97.1(effect@3.22.0)
       '@effect/printer': 0.50.0(@effect/typeclass@0.41.0(effect@3.22.0))(effect@3.22.0)
@@ -1668,6 +1823,21 @@ snapshots:
       - utf-8-validate
 
   '@effect/platform-node@0.108.0(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)':
+    dependencies:
+      '@effect/cluster': 0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
+      '@effect/platform': 0.97.1(effect@3.22.0)
+      '@effect/platform-node-shared': 0.61.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
+      '@effect/rpc': 0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0)
+      '@effect/sql': 0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0)
+      effect: 3.22.0
+      mime: 3.0.0
+      undici: 7.29.0
+      ws: 8.21.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@effect/platform-node@0.108.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)':
     dependencies:
       '@effect/cluster': 0.60.2(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(@effect/platform@0.97.1(effect@3.22.0))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.0))(effect@3.22.0))(effect@3.22.0))(effect@3.22.0)
       '@effect/platform': 0.97.1(effect@3.22.0)

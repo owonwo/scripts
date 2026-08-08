@@ -1,0 +1,15 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+// Match: ...props in destructuring parameters
+// Renames to ...restProps to avoid conflict with props parameter
+// Uses CST node matching instead of spread metavariable (which has known issues in biome lint)
+JsObjectBindingPatternRest(binding = $binding) where {
+    $binding <: r"^props",
+    register_diagnostic(
+        span = $binding,
+        message = "Rest parameter should be named `restProps` to avoid confusion with destructured props.",
+        severity = "warn",
+        fix_kind = "unsafe"
+    )
+}

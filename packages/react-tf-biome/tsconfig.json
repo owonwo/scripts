@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": ".",
+    "module": "nodenext",
+    "target": "es2022",
+    "types": ["node"],
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true
+  },
+  "include": ["bin/**/*"],
+  "exclude": ["node_modules"]
+}

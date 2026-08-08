@@ -281,159 +281,163 @@ parentPort.on("message", (message) => {
 });
 `;
 
-const directory = Args.directory({ name: "directory" }).pipe(Args.withDefault("."));
+const directories = Args.directory({ name: "directory" }).pipe(Args.repeated);
 const workers = Options.integer("workers").pipe(Options.withAlias("w"), Options.withDefault(4));
 const debug = Options.boolean("debug").pipe(Options.withAlias("d"), Options.withDefault(false));
 const force = Options.boolean("force").pipe(Options.withAlias("f"), Options.withDefault(false));
 
 const command = Command.make(
   "react-component-transformer",
-  { directory, workers, debug, force },
-  ({ directory, workers, debug, force }) =>
+  { directories, workers, debug, force },
+  ({ directories, workers, debug, force }) =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      const resolvedDir = path.resolve(directory);
+      const dirs = directories.length > 0 ? directories : ["."];
 
-      yield* Console.log(`Scanning ${resolvedDir} for .tsx files...`);
+      for (const dir of dirs) {
+        const resolvedDir = path.resolve(dir);
 
-      const allFiles = yield* fs.readDirectory(resolvedDir, { recursive: true });
-      const filterTsx = createGitignoreFilter(resolvedDir);
-      const files = allFiles.filter(filterTsx).map((file) => path.join(resolvedDir, file));
+        yield* Console.log(`Scanning ${resolvedDir} for .tsx files...`);
 
-      if (files.length === 0) {
-        yield* Console.log("No .tsx files found.");
-        return;
-      }
+        const allFiles = yield* fs.readDirectory(resolvedDir, { recursive: true });
+        const filterTsx = createGitignoreFilter(resolvedDir);
+        const files = allFiles.filter(filterTsx).map((file) => path.join(resolvedDir, file));
 
-      // Load cache and filter files
-      const { filesToProcess, cachedResults } = yield* Effect.tryPromise({
-        try: () => loadAndFilterFiles(resolvedDir, files, force, debug),
-        catch: (error) => new Error(`Cache load failed: ${error}`),
-      });
-
-      // Convert cached results to TransformResult format
-      const cachedTransformResults: TransformResult[] = cachedResults.map((r) => ({
-        filePath: r.filePath,
-        success: true,
-        message: r.transformed
-          ? `Cached (${r.componentsFound} components)`
-          : "Cached (no components)",
-        componentsFound: r.componentsFound,
-        duration: 0,
-      }));
-
-      if (cachedTransformResults.length > 0) {
-        yield* Console.log(
-          `${cachedTransformResults.length} files cached (use --force to reprocess)`,
-        );
-      }
-
-      if (filesToProcess.length === 0) {
-        yield* Console.log("All files cached. Nothing to transform.");
-        return;
-      }
-
-      yield* Console.log(
-        `Found ${filesToProcess.length} files to transform with ${workers} workers...`,
-      );
-
-      const results: TransformResult[] = [...cachedTransformResults];
-
-      const chunkSize = Math.ceil(filesToProcess.length / workers);
-      const chunks: string[][] = [];
-      for (let i = 0; i < filesToProcess.length; i += chunkSize) {
-        chunks.push(filesToProcess.slice(i, i + chunkSize));
-      }
-
-      const green = "\x1b[32m";
-      const yellow = "\x1b[33m";
-      const red = "\x1b[31m";
-      const reset = "\x1b[0m";
-      let headerPrinted = false;
-
-      const workerPromises = chunks.map((chunk) =>
-        Effect.gen(function* () {
-          return yield* Effect.async<TransformResult[], never>((resume) => {
-            const workerResults: TransformResult[] = [];
-            let completed = 0;
-
-            const worker = new Worker(WORKER_CODE, { eval: true });
-
-            worker.on("message", (result: unknown) => {
-              const r = result as TransformResult;
-              if (debug) {
-                if (!headerPrinted) {
-                  console.log("");
-                  console.log("  Results:");
-                  headerPrinted = true;
-                }
-                const duration = Math.round(r.duration);
-                const color = duration > 500 ? red : duration > 200 ? yellow : green;
-                const relativePath = r.filePath.replace(resolvedDir + "/", "");
-                console.log(`  ${color}${String(duration).padStart(5)}ms${reset}  ${relativePath}`);
-              }
-              workerResults.push(r);
-              completed++;
-              if (completed === chunk.length) {
-                worker.terminate();
-                resume(Effect.succeed(workerResults));
-              }
-            });
-
-            worker.on("error", (error) => {
-              resume(Effect.fail(error as never));
-            });
-
-            for (const filePath of chunk) {
-              if (debug) {
-                const relativePath = filePath.replace(resolvedDir + "/", "");
-                console.log(`  writing: ${relativePath}`);
-              }
-              worker.postMessage({ filePath });
-            }
-          });
-        }),
-      );
-
-      const allResults = yield* Effect.forEach(workerPromises, (effect) => effect, {
-        concurrency: 40,
-      });
-
-      for (const chunkResults of allResults) {
-        results.push(...chunkResults);
-      }
-
-      const transformed = results.filter((r) => r.success && r.componentsFound > 0);
-      const skipped = results.filter((r) => r.success && r.componentsFound === 0);
-      const errors = results.filter((r) => !r.success);
-
-      yield* Console.log("");
-      yield* Console.log(`Transformed: ${transformed.length} files`);
-      yield* Console.log(`Skipped: ${skipped.length} files (no components)`);
-      yield* Console.log(`Errors: ${errors.length} files`);
-
-      if (errors.length > 0) {
-        yield* Console.log("");
-        for (const error of errors) {
-          yield* Console.log(`  ${error.filePath}: ${error.message}`);
+        if (files.length === 0) {
+          yield* Console.log("No .tsx files found.");
+          continue;
         }
+
+        // Load cache and filter files
+        const { filesToProcess, cachedResults } = yield* Effect.tryPromise({
+          try: () => loadAndFilterFiles(resolvedDir, files, force, debug),
+          catch: (error) => new Error(`Cache load failed: ${error}`),
+        });
+
+        // Convert cached results to TransformResult format
+        const cachedTransformResults: TransformResult[] = cachedResults.map((r) => ({
+          filePath: r.filePath,
+          success: true,
+          message: r.transformed
+            ? `Cached (${r.componentsFound} components)`
+            : "Cached (no components)",
+          componentsFound: r.componentsFound,
+          duration: 0,
+        }));
+
+        if (cachedTransformResults.length > 0) {
+          yield* Console.log(
+            `${cachedTransformResults.length} files cached (use --force to reprocess)`,
+          );
+        }
+
+        if (filesToProcess.length === 0) {
+          yield* Console.log("All files cached. Nothing to transform.");
+          continue;
+        }
+
+        yield* Console.log(
+          `Found ${filesToProcess.length} files to transform with ${workers} workers...`,
+        );
+
+        const results: TransformResult[] = [...cachedTransformResults];
+
+        const chunkSize = Math.ceil(filesToProcess.length / workers);
+        const chunks: string[][] = [];
+        for (let i = 0; i < filesToProcess.length; i += chunkSize) {
+          chunks.push(filesToProcess.slice(i, i + chunkSize));
+        }
+
+        const green = "\x1b[32m";
+        const yellow = "\x1b[33m";
+        const red = "\x1b[31m";
+        const reset = "\x1b[0m";
+        let headerPrinted = false;
+
+        const workerPromises = chunks.map((chunk) =>
+          Effect.gen(function* () {
+            return yield* Effect.async<TransformResult[], never>((resume) => {
+              const workerResults: TransformResult[] = [];
+              let completed = 0;
+
+              const worker = new Worker(WORKER_CODE, { eval: true });
+
+              worker.on("message", (result: unknown) => {
+                const r = result as TransformResult;
+                if (debug) {
+                  if (!headerPrinted) {
+                    console.log("");
+                    console.log("  Results:");
+                    headerPrinted = true;
+                  }
+                  const duration = Math.round(r.duration);
+                  const color = duration > 500 ? red : duration > 200 ? yellow : green;
+                  const relativePath = r.filePath.replace(resolvedDir + "/", "");
+                  console.log(`  ${color}${String(duration).padStart(5)}ms${reset}  ${relativePath}`);
+                }
+                workerResults.push(r);
+                completed++;
+                if (completed === chunk.length) {
+                  worker.terminate();
+                  resume(Effect.succeed(workerResults));
+                }
+              });
+
+              worker.on("error", (error) => {
+                resume(Effect.fail(error as never));
+              });
+
+              for (const filePath of chunk) {
+                if (debug) {
+                  const relativePath = filePath.replace(resolvedDir + "/", "");
+                  console.log(`  writing: ${relativePath}`);
+                }
+                worker.postMessage({ filePath });
+              }
+            });
+          }),
+        );
+
+        const allResults = yield* Effect.forEach(workerPromises, (effect) => effect, {
+          concurrency: 40,
+        });
+
+        for (const chunkResults of allResults) {
+          results.push(...chunkResults);
+        }
+
+        const transformed = results.filter((r) => r.success && r.componentsFound > 0);
+        const skipped = results.filter((r) => r.success && r.componentsFound === 0);
+        const errors = results.filter((r) => !r.success);
+
+        yield* Console.log("");
+        yield* Console.log(`Transformed: ${transformed.length} files`);
+        yield* Console.log(`Skipped: ${skipped.length} files (no components)`);
+        yield* Console.log(`Errors: ${errors.length} files`);
+
+        if (errors.length > 0) {
+          yield* Console.log("");
+          for (const error of errors) {
+            yield* Console.log(`  ${error.filePath}: ${error.message}`);
+          }
+        }
+
+        // Save cache for all processed files
+        const cacheData = results.map((r) => ({
+          filePath: r.filePath,
+          transformed: r.componentsFound > 0,
+          componentsFound: r.componentsFound,
+        }));
+
+        yield* Effect.tryPromise({
+          try: () => saveCacheResults(resolvedDir, files, cacheData),
+          catch: (error) => new Error(`Cache save failed: ${error}`),
+        });
       }
-
-      // Save cache for all processed files
-      const cacheData = results.map((r) => ({
-        filePath: r.filePath,
-        transformed: r.componentsFound > 0,
-        componentsFound: r.componentsFound,
-      }));
-
-      yield* Effect.tryPromise({
-        try: () => saveCacheResults(resolvedDir, files, cacheData),
-        catch: (error) => new Error(`Cache save failed: ${error}`),
-      });
     }),
 );
 
-Command.run(command, { name: "react-component-transformer", version: "1.0.0" })(process.argv).pipe(
+Command.run(command, { name: "nurm", version: "1.0.0" })(process.argv).pipe(
   Effect.provide(NodeContext.layer),
   Effect.provide(NodeFileSystem.layer),
   NodeRuntime.runMain,

@@ -1,22 +1,22 @@
 {
-  "name": "@wigxel/tool-react-tf",
-  "version": "1.0.0",
+  "name": "@wigxel/react-tf",
+  "version": "0.0.1",
   "description": "Transform React function components from arrow functions to function declarations",
   "keywords": [],
   "license": "ISC",
   "author": "",
   "bin": {
-    "react-component-transformer": "./dist/cli.js"
+    "nurm": "./dist/cli.js"
   },
   "type": "module",
   "scripts": {
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.mjs ./test-project --debug;"
+    "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.js ./test-project --debug;"
   },
   "dependencies": {
-    "@effect/cli": "^0.76.0",
+    "@effect/cli": "^0.77.0",
     "@effect/platform": "^0.97.1",
     "@effect/platform-node": "^0.108.0",
     "@effect/schema": "^0.75.5",

@@ -1,0 +1,14 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+// Match: function components with 3+ destructured props
+// Should extract destructuring to function body
+// Uses JsParameters() node matching instead of regex on bound variable
+JsParameters() as $params where {
+    $params <: r"\([\s\S]*,[\s\S]*,[\s\S]*,[\s\S]*\)",
+    register_diagnostic(
+        span = $params,
+        message = "Complex destructured props — consider extracting to named type.",
+        severity = "hint"
+    )
+}
