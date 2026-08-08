@@ -8,6 +8,14 @@
     "dev": "pnpm -r run dev",
     "clean": "pnpm -r run clean"
   },
+  "dependencies": {
+    "@effect/cli": "0.77.0",
+    "@effect/platform": "0.97.1",
+    "@effect/platform-node": "0.108.1",
+    "@effect/printer": "0.51.0",
+    "@effect/printer-ansi": "0.51.0",
+    "effect": "3.22.1"
+  },
   "devDependencies": {
     "@voidzero-dev/vite-plus-core": "latest",
     "vite-plus": "latest"

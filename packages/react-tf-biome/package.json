@@ -16,12 +16,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
-"dependencies": {
-    "@effect/cli": "^0.69.2",
-    "@effect/platform": "^0.97.1",
-    "@effect/platform-node": "^0.108.1",
-    "effect": "^3.22.0"
-  },
+"dependencies": {},
   "peerDependencies": {
     "@biomejs/biome": ">=2.0.0"
   },

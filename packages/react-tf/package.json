@@ -16,11 +16,7 @@
     "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.js ./test-project --debug;"
   },
   "dependencies": {
-    "@effect/cli": "^0.77.0",
-    "@effect/platform": "^0.97.1",
-    "@effect/platform-node": "^0.108.0",
     "@effect/schema": "^0.75.5",
-    "effect": "^3.22.0",
     "fast-fs-hash": "^0.0.3",
     "ignore": "^7.0.6",
     "ts-morph": "^28.0.0"
