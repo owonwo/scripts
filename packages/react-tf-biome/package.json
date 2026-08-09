@@ -8,6 +8,7 @@
     "react-tf-biome": "./bin/setup.js"
   },
   "files": [
+    "src",
     "bin",
     "plugins"
   ],

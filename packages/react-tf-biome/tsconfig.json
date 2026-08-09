@@ -1,8 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": ".",
+    "rootDir": "src",
+    "outDir": "bin",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "types": ["node"],
@@ -12,6 +12,6 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true
   },
-  "include": ["bin/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

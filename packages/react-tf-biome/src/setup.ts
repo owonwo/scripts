@@ -20,7 +20,7 @@ const parseJsonc = (text: string): Record<string, unknown> => {
   let out = "";
   let i = 0;
   while (i < text.length) {
-    const ch = text[i]!;
+    const ch = text[i];
     if (ch === '"') {
       let j = i + 1;
       while (j < text.length) {
@@ -50,17 +50,17 @@ const parseJsonc = (text: string): Record<string, unknown> => {
   return JSON.parse(out);
 };
 
-const findBiomeConfig = (startDir: string, fs: FileSystem.FileSystem, path: Path.Path) =>
+const findBiomeConfig = (startDir: string, fs: FileSystem.FileSystem) =>
   Effect.gen(function* () {
     let dir = startDir;
-    const root = path.parse(dir).root;
+    const root = yield* Path.Path.pipe(Effect.map(p => p.parse(dir).root));
 
     while (dir !== root) {
       for (const name of ["biome.json", "biome.jsonc"]) {
-        const p = path.join(dir, name);
+        const p = yield* Path.Path.pipe(Effect.map(path => path.join(dir, name)));
         if (yield* fs.exists(p)) return p;
       }
-      dir = path.dirname(dir);
+      dir = yield* Path.Path.pipe(Effect.map(path => path.dirname(dir)));
     }
     return null;
   });
@@ -93,11 +93,15 @@ const dryRun = (biomePath: string | null, pluginPaths: string[]) =>
     if (biomePath === null) {
       yield* Console.log("\n  No biome.json found in project root.\n");
       yield* Console.log("  Would create biome.json with 4 plugins:\n");
-      pluginPaths.forEach((p) => Console.log(`    - ${p}`));
+      for (const p of pluginPaths) {
+        yield* Console.log(`    - ${p}`);
+      }
     } else {
       yield* Console.log(`\n  Found biome.json at ${biomePath}\n`);
       yield* Console.log("  Would add 4 plugins:\n");
-      pluginPaths.forEach((p) => Console.log(`    - ${p}`));
+      for (const p of pluginPaths) {
+        yield* Console.log(`    - ${p}`);
+      }
     }
     yield* Console.log("\n  Run without --dry-run to apply changes.\n");
   });
@@ -108,14 +112,15 @@ const apply = (
   biomePath: string | null,
   pluginPaths: string[],
   fs: FileSystem.FileSystem,
-  path: Path.Path,
 ) =>
   Effect.gen(function* () {
     if (biomePath === null) {
       const config = { plugins: pluginPaths };
-      yield* fs.writeFileString("biome.json", JSON.stringify(config, null, 2) + "\n");
+      yield* fs.writeFileString("biome.json", `${JSON.stringify(config, null, 2)}\n`);
       yield* Console.log("\n  Created biome.json with 4 plugins:\n");
-      pluginPaths.forEach((p) => Console.log(`    - ${p}`));
+      for (const p of pluginPaths) {
+        yield* Console.log(`    - ${p}`);
+      }
     } else {
       const content = yield* fs.readFileString(biomePath);
       const config = parseJsonc(content);
@@ -126,9 +131,11 @@ const apply = (
       }
 
       const updated = addPlugins(config, pluginPaths);
-      yield* fs.writeFileString(biomePath, JSON.stringify(updated, null, 2) + "\n");
+      yield* fs.writeFileString(biomePath, `${JSON.stringify(updated, null, 2)}\n`);
       yield* Console.log(`\n  Added 4 plugins to ${biomePath}:\n`);
-      pluginPaths.forEach((p) => Console.log(`    - ${p}`));
+      for (const p of pluginPaths) {
+        yield* Console.log(`    - ${p}`);
+      }
     }
   });
 
@@ -142,15 +149,14 @@ const setupCommand = Command.make(
   ({ dryRun: isDryRun }) =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
 
-      const biomePath = yield* findBiomeConfig(process.cwd(), fs, path);
+      const biomePath = yield* findBiomeConfig(process.cwd(), fs);
       const pluginPaths = getRelativePluginPaths();
 
       if (isDryRun) {
         return yield* dryRun(biomePath, pluginPaths);
       }
-      return yield* apply(biomePath, pluginPaths, fs, path);
+      return yield* apply(biomePath, pluginPaths, fs);
     }),
 );
 
