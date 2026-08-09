@@ -384,7 +384,7 @@ const command = Command.make(
         }
 
         yield* Console.log(
-          `Found ${filesToProcess.length} files to transform with ${workers} workers...`,
+          `Found ${filesToProcess.length} files to transform with ${Math.min(workers, filesToProcess.length)} workers...`,
         );
 
         const results: TransformResult[] = [...cachedTransformResults];
