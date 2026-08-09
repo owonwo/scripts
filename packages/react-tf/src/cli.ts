@@ -5,9 +5,9 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { Args, Command, Options } from "@effect/cli";
-import { PositiveInteger } from "@wigxel/cli-core";
 import { FileSystem } from "@effect/platform";
 import { NodeContext, NodeFileSystem, NodeRuntime } from "@effect/platform-node";
+import { PositiveInteger } from "@wigxel/cli-core";
 import { Console, Effect } from "effect";
 import { loadAndFilterFiles, saveCacheResults } from "./cache.js";
 import { createGitignoreFilter } from "./gitignore.js";
@@ -348,13 +348,10 @@ const command = Command.make(
 
       // Process each directory's files
       for (const [resolvedDir, allFiles] of filesByDir) {
-
         yield* Console.log(`Found ${allFiles.length} .tsx files. Checking cache...`);
 
         // Use cwd as cache root for files outside the project tree
-        const cacheDir = resolvedDir.startsWith(process.cwd())
-          ? resolvedDir
-          : process.cwd();
+        const cacheDir = resolvedDir.startsWith(process.cwd()) ? resolvedDir : process.cwd();
 
         // Load cache and filter files
         const { filesToProcess, cachedResults } = yield* Effect.tryPromise({
@@ -441,7 +438,9 @@ const command = Command.make(
                   const duration = Math.round(r.duration);
                   const color = duration > 500 ? red : duration > 200 ? yellow : green;
                   const relativePath = r.filePath.replace(resolvedDir + "/", "");
-                  console.log(`  ${color}${String(duration).padStart(5)}ms${reset}  ${relativePath}`);
+                  console.log(
+                    `  ${color}${String(duration).padStart(5)}ms${reset}  ${relativePath}`,
+                  );
                 }
                 workerResults.push(r);
                 completedCount++;

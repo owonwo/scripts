@@ -1,6 +1,12 @@
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
-import { CommaSeparatedHosts, HostPort, IntegerFromString, NonNegativeInteger, PositiveInteger } from "./schemas";
+import {
+  CommaSeparatedHosts,
+  HostPort,
+  IntegerFromString,
+  NonNegativeInteger,
+  PositiveInteger,
+} from "./schemas";
 
 describe("Schemas", () => {
   describe("IntegerFromString", () => {
@@ -98,7 +104,9 @@ describe("Schemas", () => {
       const result = Schema.decodeUnknownEither(HostPort("--host"))("invalid");
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
-        expect(result.left.message).toContain("--host: invalid address 'invalid', expected host:port");
+        expect(result.left.message).toContain(
+          "--host: invalid address 'invalid', expected host:port",
+        );
       }
     });
   });
@@ -111,15 +119,21 @@ describe("Schemas", () => {
     });
 
     it("decodes multiple addresses", () => {
-      const result = Schema.decodeUnknownEither(CommaSeparatedHosts())("localhost:3000,127.0.0.1:3001");
+      const result = Schema.decodeUnknownEither(CommaSeparatedHosts())(
+        "localhost:3000,127.0.0.1:3001",
+      );
       expect(result._tag).toBe("Right");
-      if (result._tag === "Right") expect(result.right).toEqual(["localhost:3000", "127.0.0.1:3001"]);
+      if (result._tag === "Right")
+        expect(result.right).toEqual(["localhost:3000", "127.0.0.1:3001"]);
     });
 
     it("decodes addresses with whitespace", () => {
-      const result = Schema.decodeUnknownEither(CommaSeparatedHosts())("localhost:3000 , 127.0.0.1:3001");
+      const result = Schema.decodeUnknownEither(CommaSeparatedHosts())(
+        "localhost:3000 , 127.0.0.1:3001",
+      );
       expect(result._tag).toBe("Right");
-      if (result._tag === "Right") expect(result.right).toEqual(["localhost:3000", "127.0.0.1:3001"]);
+      if (result._tag === "Right")
+        expect(result.right).toEqual(["localhost:3000", "127.0.0.1:3001"]);
     });
 
     it("fails on empty string", () => {
@@ -136,7 +150,9 @@ describe("Schemas", () => {
       const result = Schema.decodeUnknownEither(CommaSeparatedHosts("--addresses"))("bad");
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
-        expect(result.left.message).toContain("--addresses: invalid address 'bad', expected host:port");
+        expect(result.left.message).toContain(
+          "--addresses: invalid address 'bad', expected host:port",
+        );
       }
     });
   });

@@ -11,11 +11,6 @@
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish"
   },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
   "dependencies": {
     "@effect/cli": "0.77.0",
     "@effect/platform": "0.97.1",
@@ -32,6 +27,11 @@
     "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",
     "vite-plus": "latest"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   },
   "packageManager": "pnpm@10.22.0"
 }

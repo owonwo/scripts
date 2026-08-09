@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "@wigxel/cli-core": "workspace:*",
-    "tigerbeetle-node": "0.17.4",
-    "consola": "^3.4.2"
+    "consola": "^3.4.2",
+    "tigerbeetle-node": "0.17.4"
   },
   "devDependencies": {
     "tsx": "^4.19.0",

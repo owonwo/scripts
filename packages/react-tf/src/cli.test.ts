@@ -13,7 +13,11 @@ describe("Args path filtering", () => {
     const command = Command.make("test", { paths }, ({ paths }) => Effect.succeed(paths));
 
     const program = Command.run(command, { name: "test", version: "0.1.0" })([
-      "node", "test", "--debug", "--force", "src",
+      "node",
+      "test",
+      "--debug",
+      "--force",
+      "src",
     ]);
 
     const result = program.pipe(Effect.provide(NodeContext.layer), Effect.runSyncExit);
@@ -32,7 +36,11 @@ describe("Args path filtering", () => {
     const command = Command.make("test", { paths }, ({ paths }) => Effect.succeed(paths));
 
     const program = Command.run(command, { name: "test", version: "0.1.0" })([
-      "node", "test", "-d", "-f", "src",
+      "node",
+      "test",
+      "-d",
+      "-f",
+      "src",
     ]);
 
     const result = program.pipe(Effect.provide(NodeContext.layer), Effect.runSyncExit);
@@ -51,7 +59,12 @@ describe("Args path filtering", () => {
     const command = Command.make("test", { paths }, ({ paths }) => Effect.succeed(paths));
 
     const program = Command.run(command, { name: "test", version: "0.1.0" })([
-      "node", "test", "--debug", "-f", "src", "dist",
+      "node",
+      "test",
+      "--debug",
+      "-f",
+      "src",
+      "dist",
     ]);
 
     const result = program.pipe(Effect.provide(NodeContext.layer), Effect.runSyncExit);
@@ -70,7 +83,10 @@ describe("Args path filtering", () => {
     const command = Command.make("test", { paths }, ({ paths }) => Effect.succeed(paths));
 
     const program = Command.run(command, { name: "test", version: "0.1.0" })([
-      "node", "test", "--debug", "-f",
+      "node",
+      "test",
+      "--debug",
+      "-f",
     ]);
 
     const result = program.pipe(Effect.provide(NodeContext.layer), Effect.runSyncExit);
@@ -89,7 +105,11 @@ describe("Args path filtering", () => {
     const command = Command.make("test", { paths }, ({ paths }) => Effect.succeed(paths));
 
     const program = Command.run(command, { name: "test", version: "0.1.0" })([
-      "node", "test", "src", "dist", "lib",
+      "node",
+      "test",
+      "src",
+      "dist",
+      "lib",
     ]);
 
     const result = program.pipe(Effect.provide(NodeContext.layer), Effect.runSyncExit);

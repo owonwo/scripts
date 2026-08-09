@@ -78,10 +78,7 @@ describe("worker pool", () => {
 
   it("processes multiple files across workers", async () => {
     const files = Array.from({ length: 6 }, (_, i) =>
-      writeTestFile(
-        `Comp${i}.tsx`,
-        `const Comp${i} = () => { return <div>{${i}}</div>; };`,
-      ),
+      writeTestFile(`Comp${i}.tsx`, `const Comp${i} = () => { return <div>{${i}}</div>; };`),
     );
 
     const { results } = await createWorkerPool(files, 2);

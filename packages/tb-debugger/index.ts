@@ -1,17 +1,19 @@
 import { Command, Options } from "@effect/cli";
-import { NodeRuntime } from "@effect/platform-node";
-import { CliErrorHandler, ConsolaLayer } from "@wigxel/cli-core";
+import { NodeContext, NodeRuntime } from "@effect/platform-node";
+import { CommaSeparatedHosts, ConsolaLayer, NonNegativeInteger } from "@wigxel/cli-core";
 import { Effect } from "effect";
 import { CreateAccountStatus, CreateTransferStatus, createClient } from "tigerbeetle-node";
 
-const clusterId = Options.integer("cluster-id").pipe(
+const clusterId = Options.text("cluster-id").pipe(
   Options.withAlias("c"),
-  Options.withDefault(0),
+  Options.withDefault("0"),
+  Options.withSchema(NonNegativeInteger("--cluster-id")),
 );
 
 const replicaAddresses = Options.text("addresses").pipe(
   Options.withAlias("a"),
   Options.withDefault("3000"),
+  Options.withSchema(CommaSeparatedHosts("--addresses")),
 );
 
 const command = Command.make(
@@ -19,9 +21,11 @@ const command = Command.make(
   { clusterId, replicaAddresses },
   ({ clusterId, replicaAddresses }) =>
     Effect.gen(function* () {
-      const addresses = replicaAddresses.split(",").map((addr) => addr.trim());
+      const addresses = [...replicaAddresses];
 
-      yield* Effect.logInfo(`Connecting to TigerBeetle cluster ${clusterId} at ${addresses.join(", ")}`);
+      yield* Effect.logInfo(
+        `Connecting to TigerBeetle cluster ${clusterId} at ${addresses.join(", ")}`,
+      );
 
       const client = createClient({
         cluster_id: BigInt(clusterId),
@@ -59,7 +63,9 @@ const command = Command.make(
       });
 
       if (fundingAccountResults[0].status !== CreateAccountStatus.created) {
-        yield* Effect.logError(`Failed to create funding account: ${fundingAccountResults[0].status}`);
+        yield* Effect.logError(
+          `Failed to create funding account: ${fundingAccountResults[0].status}`,
+        );
         yield* Effect.fail(new Error("Failed to create funding account"));
       }
 
@@ -90,7 +96,9 @@ const command = Command.make(
       });
 
       if (targetAccountResults[0].status !== CreateAccountStatus.created) {
-        yield* Effect.logError(`Failed to create target account: ${targetAccountResults[0].status}`);
+        yield* Effect.logError(
+          `Failed to create target account: ${targetAccountResults[0].status}`,
+        );
         yield* Effect.fail(new Error("Failed to create target account"));
       }
 
@@ -123,7 +131,9 @@ const command = Command.make(
       });
 
       if (initialTransferResults[0].status !== CreateTransferStatus.created) {
-        yield* Effect.logError(`Failed to perform initial transfer: ${initialTransferResults[0].status}`);
+        yield* Effect.logError(
+          `Failed to perform initial transfer: ${initialTransferResults[0].status}`,
+        );
         yield* Effect.fail(new Error("Failed to perform initial transfer"));
       }
 
@@ -142,7 +152,9 @@ const command = Command.make(
           incrementCount++;
           const transferId = BigInt(Date.now() + incrementCount);
 
-          yield* Effect.log(`[${new Date().toISOString()}] Increment #${incrementCount}: Transferring 1`);
+          yield* Effect.log(
+            `[${new Date().toISOString()}] Increment #${incrementCount}: Transferring 1`,
+          );
 
           const transferResults = yield* Effect.tryPromise({
             try: () =>
@@ -169,7 +181,9 @@ const command = Command.make(
           if (transferResults[0].status === CreateTransferStatus.created) {
             yield* Effect.logInfo(`Increment #${incrementCount} completed successfully`);
           } else {
-            yield* Effect.logError(`Increment #${incrementCount} failed: ${transferResults[0].status}`);
+            yield* Effect.logError(
+              `Increment #${incrementCount} failed: ${transferResults[0].status}`,
+            );
           }
 
           // Log current balances
@@ -194,15 +208,13 @@ const command = Command.make(
 const program = Command.run(command, {
   name: "tb-debugger",
   version: "0.1.0",
-})(process.argv);
+});
 
 const cliArgs = process.argv.filter((arg) => arg !== "--");
 
-const main = program(cliArgs).pipe(
+Command.run(command, { name: "tb-debugger", version: "0.1.0" })(cliArgs).pipe(
+  Effect.provide(NodeContext.layer),
   Effect.provide(ConsolaLayer),
-);
-
-main.pipe(
-  CliErrorHandler.formatErrors,
+  Effect.catchAll(() => Effect.void),
   NodeRuntime.runMain,
 );

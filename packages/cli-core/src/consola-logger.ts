@@ -4,7 +4,7 @@ import { Logger, LogLevel } from "effect";
 const consola = createConsola({
   formatOptions: {
     colors: true,
-  }
+  },
 });
 
 const logger = Logger.make(({ logLevel, message }) => {

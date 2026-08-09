@@ -6,12 +6,12 @@ Pairs with [`@wigxel/react-tf`](../react-tf) — this package provides lint-time
 
 ## Rules
 
-| Rule | What it detects | Severity | Auto-fix |
-| --- | --- | --- | --- |
-| `arrow-component.grit` | Arrow function components (`const Foo = () => ...`) | hint | — |
-| `inline-type-literal.grit` | Inline type literals in params (`({ x }: { x: string })`) | warn | — |
-| `rest-props-rename.grit` | `...props` naming conflict | warn | `...props` → `...restProps` |
-| `destructured-props-complex.grit` | 3+ destructured props | hint | — |
+| Rule                              | What it detects                                           | Severity | Auto-fix                    |
+| --------------------------------- | --------------------------------------------------------- | -------- | --------------------------- |
+| `arrow-component.grit`            | Arrow function components (`const Foo = () => ...`)       | hint     | —                           |
+| `inline-type-literal.grit`        | Inline type literals in params (`({ x }: { x: string })`) | warn     | —                           |
+| `rest-props-rename.grit`          | `...props` naming conflict                                | warn     | `...props` → `...restProps` |
+| `destructured-props-complex.grit` | 3+ destructured props                                     | hint     | —                           |
 
 ## Setup
 
@@ -30,6 +30,7 @@ npx react-tf-biome
 ```
 
 This will:
+
 - Find your `biome.json` (or `biome.jsonc`)
 - Add the 4 plugin paths if not already configured
 - Create `biome.json` if it doesn't exist
