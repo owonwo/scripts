@@ -6,7 +6,10 @@
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "dev": "pnpm -r run dev",
-    "clean": "pnpm -r run clean"
+    "clean": "pnpm -r run clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "config": {
     "commitizen": {
@@ -22,6 +25,7 @@
     "effect": "3.22.1"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
     "@voidzero-dev/vite-plus-core": "latest",
