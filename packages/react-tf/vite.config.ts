@@ -16,7 +16,6 @@ export default defineConfig({
         "@effect/cli",
         "@effect/platform",
         "@effect/platform-node",
-        "@effect/schema",
         "fast-fs-hash",
         "node:worker_threads",
         "node:path",

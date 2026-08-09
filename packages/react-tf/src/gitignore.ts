@@ -19,6 +19,23 @@ const DEFAULT_IGNORED = [
   ".DS_Store",
 ];
 
+// Directories to skip during gitignore file discovery — avoids traversing
+// into thousands of irrelevant subdirectories (e.g. node_modules, .git)
+export const SKIP_DIRS = new Set([
+  "node_modules",
+  ".git",
+  "dist",
+  "build",
+  ".next",
+  ".cache",
+  ".turbo",
+  ".vercel",
+  ".netlify",
+  "coverage",
+  ".nyc_output",
+  "__pycache__",
+]);
+
 export function createGitignoreFilter(targetDir: string): (filePath: string) => boolean {
   const ig = ignore();
 
@@ -78,8 +95,9 @@ function findGitignoreFiles(dir: string, results: string[] = []): string[] {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      // Skip .git directory entirely
-      if (entry.name === ".git") {
+      // Skip known-ignored directories entirely — avoids traversing
+      // thousands of irrelevant subdirectories (e.g. node_modules, .git)
+      if (SKIP_DIRS.has(entry.name)) {
         continue;
       }
 
