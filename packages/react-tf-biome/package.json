@@ -16,7 +16,9 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@wigxel/cli-core": "workspace:*"
+  },
   "peerDependencies": {
     "@biomejs/biome": ">=2.0.0"
   },

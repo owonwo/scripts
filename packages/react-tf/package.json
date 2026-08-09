@@ -16,6 +16,7 @@
     "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.js ./test-project --debug;"
   },
   "dependencies": {
+    "@wigxel/cli-core": "workspace:*",
     "fast-fs-hash": "^0.0.3",
     "ignore": "^7.0.6",
     "ts-morph": "^28.0.0"

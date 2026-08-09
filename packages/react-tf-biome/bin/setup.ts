@@ -3,7 +3,8 @@
 import { Command, Options } from "@effect/cli"
 import { FileSystem, Path } from "@effect/platform"
 import { NodeContext, NodeRuntime } from "@effect/platform-node"
-import { Cause, Console, Effect } from "effect"
+import { CliErrorHandler } from "@wigxel/cli-core"
+import { Console, Effect } from "effect"
 
 const PLUGINS = [
   "arrow-component.grit",
@@ -13,24 +14,6 @@ const PLUGINS = [
 ] as const
 
 const PLUGIN_NAMESPACE = "@wigxel/react-tf-biome/plugins"
-
-// --- Error Formatting ---
-
-const formatError = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.message || String(error)
-  }
-  if (typeof error === "object" && error !== null && "_tag" in error) {
-    const tag = (error as { _tag: string })._tag
-    if (tag === "InvalidValue") {
-      return "Invalid CLI arguments. Use --help for usage information."
-    }
-    if (tag === "BadArgument") {
-      return "Bad argument provided. Use --help for usage information."
-    }
-  }
-  return String(error)
-}
 
 // --- Helpers ---
 
@@ -186,7 +169,6 @@ const cli = Command.run(setupCommand, {
 
 cli(process.argv).pipe(
   Effect.provide(NodeContext.layer),
-  Effect.tapError((error) => Console.error(`\n  ${formatError(error)}\n`)),
-  Effect.catchAll(() => Effect.void),
+  CliErrorHandler.formatErrors,
   NodeRuntime.runMain,
 )

@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Worker } from "node:worker_threads";
 import { Args, Command, Options } from "@effect/cli";
 import { FileSystem } from "@effect/platform";
 import { NodeContext, NodeFileSystem, NodeRuntime } from "@effect/platform-node";
 import { CliErrorHandler } from "@wigxel/cli-core";
 import { Console, Effect } from "effect";
-import { Worker } from "node:worker_threads";
-import * as fs from "node:fs";
-import * as path from "node:path";
-import { fileURLToPath } from "node:url";
-import type { TransformResult } from "./transformer.js";
 import { loadAndFilterFiles, saveCacheResults } from "./cache.js";
 import { createGitignoreFilter } from "./gitignore.js";
+import type { TransformResult } from "./transformer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -244,7 +244,7 @@ parentPort.on("message", (message) => {
         if (destructuringPattern !== "props") {
           // Fix rest element naming conflict: ...props -> ...restProps
           const fixedPattern = destructuringPattern.replace(/\\.\\.\\.props\\b/g, "...restProps");
-          const fixedBodyContent = fixedPattern !== destructuringPattern 
+          const fixedBodyContent = fixedPattern !== destructuringPattern
             ? bodyContent.replace(/\\.\\.\\.props\\b/g, "...restProps")
             : bodyContent;
           newFunc.setBodyText("\\n  const " + fixedPattern + " = props;\\n\\n  " + fixedBodyContent + "\\n");
@@ -264,7 +264,7 @@ parentPort.on("message", (message) => {
 
         // Fix rest element naming conflict: ...props -> ...restProps
         const fixedPattern = destructuringPattern.replace(/\\.\\.\\.props\\b/g, "...restProps");
-        const fixedBodyContent = fixedPattern !== destructuringPattern 
+        const fixedBodyContent = fixedPattern !== destructuringPattern
           ? bodyContent.replace(/\\.\\.\\.props\\b/g, "...restProps")
           : bodyContent;
         newFunc.setBodyText("\\n  const " + fixedPattern + " = props;\\n\\n  " + fixedBodyContent + "\\n");
@@ -496,6 +496,6 @@ const command = Command.make(
 Command.run(command, { name: "nurm", version: "1.0.0" })(process.argv).pipe(
   Effect.provide(NodeContext.layer),
   Effect.provide(NodeFileSystem.layer),
-  CliErrorHandler.formatError,
+  CliErrorHandler.formatErrors,
   NodeRuntime.runMain,
 );
