@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "testing": {
+      "source": "wigxel/ai-rules",
+      "sourceType": "github",
+      "skillPath": "skills/wg-testing/SKILL.md",
+      "computedHash": "c8fcbce9f3048d6a312f60dc8a45cc1ce0a2f0f653858750484400832b761c39"
+    },
+    "tools": {
+      "source": "wigxel/ai-rules",
+      "sourceType": "github",
+      "skillPath": "skills/wg-tools/SKILL.md",
+      "computedHash": "66a1628c4dc8ff3feecc8ee2bae368102b80b2e61a4979015b7e6458a7f9adcf"
+    }
+  }
+}
