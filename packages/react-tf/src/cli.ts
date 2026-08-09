@@ -3,8 +3,10 @@
 import { Args, Command, Options } from "@effect/cli";
 import { FileSystem } from "@effect/platform";
 import { NodeContext, NodeFileSystem, NodeRuntime } from "@effect/platform-node";
+import { CliErrorHandler } from "@wigxel/cli-core";
 import { Console, Effect } from "effect";
 import { Worker } from "node:worker_threads";
+import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { TransformResult } from "./transformer.js";
@@ -294,38 +296,62 @@ parentPort.on("message", (message) => {
 });
 `;
 
-const directories = Args.directory({ name: "directory" }).pipe(Args.repeated);
+const paths = Args.path({ name: "path" }).pipe(Args.repeated);
 const workers = Options.integer("workers").pipe(Options.withAlias("w"), Options.withDefault(4));
 const debug = Options.boolean("debug").pipe(Options.withAlias("d"), Options.withDefault(false));
 const force = Options.boolean("force").pipe(Options.withAlias("f"), Options.withDefault(false));
 
 const command = Command.make(
   "react-component-transformer",
-  { directories, workers, debug, force },
-  ({ directories, workers, debug, force }) =>
+  { paths, workers, debug, force },
+  ({ paths, workers, debug, force }) =>
     Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const dirs = directories.length > 0 ? directories : ["."];
+      const consoleFs = yield* FileSystem.FileSystem;
+      const inputPaths = paths.length > 0 ? paths : ["."];
 
-      for (const dir of dirs) {
-        const resolvedDir = path.resolve(dir);
+      // Collect all files to process, detecting file vs directory
+      const filesByDir = new Map<string, string[]>();
 
-        yield* Console.log(`Scanning ${resolvedDir} for .tsx files...`);
+      for (const input of inputPaths) {
+        const resolved = path.resolve(input);
+        const stat = fs.statSync(resolved);
 
-        const allFiles = yield* fs.readDirectory(resolvedDir, { recursive: true });
-        const filterTsx = createGitignoreFilter(resolvedDir);
-        const files = allFiles.filter(filterTsx).map((file) => path.join(resolvedDir, file));
+        if (stat.isFile()) {
+          const dir = path.dirname(resolved);
+          const existing = filesByDir.get(dir) ?? [];
+          existing.push(resolved);
+          filesByDir.set(dir, existing);
+        } else if (stat.isDirectory()) {
+          yield* Console.log(`Scanning ${resolved} for .tsx files...`);
 
-        if (files.length === 0) {
-          yield* Console.log("No .tsx files found.");
-          continue;
+          const allFiles = yield* consoleFs.readDirectory(resolved, { recursive: true });
+          const filterTsx = createGitignoreFilter(resolved);
+          const files = allFiles.filter(filterTsx).map((file) => path.join(resolved, file));
+          const tsxFiles = files.filter((f) => f.endsWith(".tsx"));
+
+          if (tsxFiles.length === 0) {
+            yield* Console.log("No .tsx files found.");
+          } else {
+            const existing = filesByDir.get(resolved) ?? [];
+            existing.push(...tsxFiles);
+            filesByDir.set(resolved, existing);
+          }
         }
+      }
 
-        yield* Console.log(`Found ${files.length} .tsx files. Checking cache...`);
+      // Process each directory's files
+      for (const [resolvedDir, allFiles] of filesByDir) {
+
+        yield* Console.log(`Found ${allFiles.length} .tsx files. Checking cache...`);
+
+        // Use cwd as cache root for files outside the project tree
+        const cacheDir = resolvedDir.startsWith(process.cwd())
+          ? resolvedDir
+          : process.cwd();
 
         // Load cache and filter files
         const { filesToProcess, cachedResults } = yield* Effect.tryPromise({
-          try: () => loadAndFilterFiles(resolvedDir, files, force, debug),
+          try: () => loadAndFilterFiles(cacheDir, allFiles, force, debug),
           catch: (error) => new Error(`Cache load failed: ${error}`),
         });
 
@@ -460,7 +486,7 @@ const command = Command.make(
         }));
 
         yield* Effect.tryPromise({
-          try: () => saveCacheResults(resolvedDir, files, cacheData),
+          try: () => saveCacheResults(cacheDir, allFiles, cacheData),
           catch: (error) => new Error(`Cache save failed: ${error}`),
         });
       }
@@ -470,5 +496,6 @@ const command = Command.make(
 Command.run(command, { name: "nurm", version: "1.0.0" })(process.argv).pipe(
   Effect.provide(NodeContext.layer),
   Effect.provide(NodeFileSystem.layer),
+  CliErrorHandler.formatError,
   NodeRuntime.runMain,
 );
