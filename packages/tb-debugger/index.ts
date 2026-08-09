@@ -196,7 +196,9 @@ const program = Command.run(command, {
   version: "0.1.0",
 })(process.argv);
 
-const main = program.pipe(
+const cliArgs = process.argv.filter((arg) => arg !== "--");
+
+const main = program(cliArgs).pipe(
   Effect.provide(ConsolaLayer),
 );
 

@@ -5,9 +5,9 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { Args, Command, Options } from "@effect/cli";
+import { PositiveInteger } from "@wigxel/cli-core";
 import { FileSystem } from "@effect/platform";
 import { NodeContext, NodeFileSystem, NodeRuntime } from "@effect/platform-node";
-import { CliErrorHandler } from "@wigxel/cli-core";
 import { Console, Effect } from "effect";
 import { loadAndFilterFiles, saveCacheResults } from "./cache.js";
 import { createGitignoreFilter } from "./gitignore.js";
@@ -298,9 +298,13 @@ parentPort.on("message", (message) => {
 
 const paths = Args.path({ name: "path" }).pipe(
   Args.repeated,
-  Args.map((paths) => paths.filter((p) => !/^--?./.test(p))),
+  Args.map((paths) => paths.filter((p) => !p.startsWith("--"))),
 );
-const workers = Options.integer("workers").pipe(Options.withAlias("w"), Options.withDefault(4));
+const workers = Options.text("workers").pipe(
+  Options.withAlias("w"),
+  Options.withDefault("4"),
+  Options.withSchema(PositiveInteger("--workers")),
+);
 const debug = Options.boolean("debug").pipe(Options.withAlias("d"), Options.withDefault(false));
 const force = Options.boolean("force").pipe(Options.withAlias("f"), Options.withDefault(false));
 
@@ -499,6 +503,6 @@ const command = Command.make(
 Command.run(command, { name: "nurm", version: "1.0.0" })(process.argv).pipe(
   Effect.provide(NodeContext.layer),
   Effect.provide(NodeFileSystem.layer),
-  CliErrorHandler.formatErrors,
+  Effect.catchAll(() => Effect.void),
   NodeRuntime.runMain,
 );

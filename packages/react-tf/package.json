@@ -13,7 +13,7 @@
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.js ./test-project --debug;"
+    "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.js ./test-project --debug --force;"
   },
   "dependencies": {
     "@wigxel/cli-core": "workspace:*",
