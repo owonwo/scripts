@@ -7,7 +7,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "scriptc build src/index.ts --dynamic -o .bin/env-cleaner",
+    "build": "vite build && scriptc build .build/index.js --dynamic -o .bin/env-cleaner",
     "test": "bash tests/test_env_cleaner.sh .bin/env-cleaner"
   },
   "dependencies": {},

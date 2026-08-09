@@ -16,9 +16,7 @@ import type { TransformResult } from "./transformer.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const { version } = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
-);
+declare const __VERSION__: string;
 
 // Inline worker code for self-contained binary
 // Uses lazy-init for ts-morph Project to defer expensive startup cost
@@ -503,7 +501,7 @@ const command = Command.make(
     }),
 );
 
-Command.run(command, { name: "nurm", version })(process.argv).pipe(
+Command.run(command, { name: "nurm", version: __VERSION__ })(process.argv).pipe(
   Effect.provide(NodeContext.layer),
   Effect.provide(NodeFileSystem.layer),
   Effect.catchAll(() => Effect.void),
