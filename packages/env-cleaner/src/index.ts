@@ -40,7 +40,7 @@ const cleanEnv = (content: string): string =>
 const command = Command.make("env-cleaner", { file }, ({ file }) =>
   Effect.sync(() => readFileSync(file, "utf8")).pipe(
     Effect.map((content) => cleanEnv(content)),
-    Effect.map((cleaned) => Buffer.from(cleaned).toString("base64")),
+    Effect.map((cleaned) => btoa(cleaned)),
     Effect.flatMap((encoded) => Console.log(encoded)),
   ),
 );
