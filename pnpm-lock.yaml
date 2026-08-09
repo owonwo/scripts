@@ -59,15 +59,15 @@ importers:
         specifier: ^3.4.2
         version: 3.4.2
     devDependencies:
-      '@effect/cli':
-        specifier: 0.77.0
-        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.1))(@effect/printer-ansi@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
       effect:
         specifier: 3.22.1
         version: 3.22.1
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.11)(yaml@2.9.0))
 
   packages/env-cleaner:
     devDependencies:
@@ -80,6 +80,9 @@ importers:
 
   packages/react-tf:
     dependencies:
+      '@wigxel/cli-core':
+        specifier: workspace:*
+        version: link:../cli-core
       fast-fs-hash:
         specifier: ^0.0.3
         version: 0.0.3
@@ -102,6 +105,9 @@ importers:
       '@biomejs/biome':
         specifier: '>=2.0.0'
         version: 2.5.7
+      '@wigxel/cli-core':
+        specifier: workspace:*
+        version: link:../cli-core
     devDependencies:
       '@types/node':
         specifier: ^26.2.0

@@ -1,6 +1,6 @@
 {
   "name": "@wigxel/react-tf",
-  "version": "0.0.2",
+  "version": "0.1.1",
   "description": "Transform React function components from arrow functions to function declarations",
   "keywords": [],
   "license": "ISC",

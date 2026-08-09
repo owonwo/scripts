@@ -1,6 +1,6 @@
 {
   "name": "@wigxel/react-tf-biome",
-  "version": "0.0.2",
+  "version": "0.1.1",
   "description": "GritQL lint rules for Wigxel React component coding standards",
   "license": "ISC",
   "bin": {
