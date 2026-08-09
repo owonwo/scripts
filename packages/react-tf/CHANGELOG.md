@@ -1,5 +1,12 @@
 # @wigxel/react-tf
 
+## 0.1.2
+
+### Patch Changes
+
+- cli verision should match package.json
+  - @wigxel/cli-core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
