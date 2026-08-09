@@ -108,6 +108,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
           functionDeclaration = sourceFile.addFunction({
             name: componentName,
             isExported: variableStatement.isExported(),
+            isDefaultExport: variableStatement.isDefaultExport(),
           });
         } else {
           const firstParam = parameters[0];
@@ -134,6 +135,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
               },
             ],
             isExported: variableStatement.isExported(),
+            isDefaultExport: variableStatement.isDefaultExport(),
           });
 
           // Fix rest element naming conflict: ...props -> ...restProps
@@ -159,6 +161,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
       typeName: string;
       destructuringPattern: string;
       isExported: boolean;
+      isDefaultExport: boolean;
       bodyContent: string;
       isInlineType: boolean;
     }> = [];
@@ -181,6 +184,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
       const componentName = func.getName()!;
       const destructuringPattern = firstParam.getName();
       const isExported = func.isExported();
+      const isDefaultExport = func.isDefaultExport();
 
       // Get function body content
       const body = func.getBody();
@@ -197,6 +201,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
           typeName: "",
           destructuringPattern,
           isExported,
+          isDefaultExport,
           bodyContent,
           isInlineType: true,
         });
@@ -222,6 +227,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
           typeName: typeNode.getText(),
           destructuringPattern,
           isExported,
+          isDefaultExport,
           bodyContent,
           isInlineType: false,
         });
@@ -239,6 +245,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
         typeName,
         destructuringPattern,
         isExported,
+        isDefaultExport,
         bodyContent,
         isInlineType,
       } = transformation;
@@ -261,6 +268,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
             },
           ],
           isExported,
+          isDefaultExport,
         });
 
         if (destructuringPattern !== "props") {
@@ -285,6 +293,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
             },
           ],
           isExported,
+          isDefaultExport,
         });
 
         // Fix rest element naming conflict: ...props -> ...restProps

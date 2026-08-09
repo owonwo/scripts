@@ -15,32 +15,41 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Inline worker code for self-contained binary
-const WORKER_CODE = `
+// Uses lazy-init for ts-morph Project to defer expensive startup cost
+export const WORKER_CODE = `
 const { parentPort } = require("node:worker_threads");
-const { Project } = require("ts-morph");
+const fs = require("node:fs");
+const path = require("node:path");
 
 if (!parentPort) {
   throw new Error("Worker must be run in a worker_threads context");
 }
 
-const project = new Project({
-  tsConfigFilePath: "tsconfig.json",
-});
+// Lazy-init ts-morph Project — only create when a file actually needs transformation
+let project = null;
+function getProject() {
+  if (!project) {
+    const { Project } = require("ts-morph");
+    project = new Project({ tsConfigFilePath: "tsconfig.json" });
+  }
+  return project;
+}
+
+function isReactComponent(name) {
+  return /^[A-Z]/.test(name);
+}
+
+function isTsxFile(filePath) {
+  return path.extname(filePath).toLowerCase() === ".tsx";
+}
 
 parentPort.on("message", (message) => {
+  if (message.done) {
+    process.exit(0);
+  }
+
   const { filePath } = message;
-  const fs = require("node:fs");
-  const path = require("node:path");
-
   const start = performance.now();
-
-  function isReactComponent(name) {
-    return /^[A-Z]/.test(name);
-  }
-
-  function isTsxFile(filePath) {
-    return path.extname(filePath).toLowerCase() === ".tsx";
-  }
 
   if (!isTsxFile(filePath)) {
     parentPort.postMessage({ filePath, success: false, message: "Not a TSX file", componentsFound: 0, duration: 0 });
@@ -63,12 +72,9 @@ parentPort.on("message", (message) => {
   }
 
   try {
+    const proj = getProject();
     const { SyntaxKind } = require("ts-morph");
-    const sourceFile = project.addSourceFileAtPath(filePath);
-
-    function isReactComponent(name) {
-      return /^[A-Z]/.test(name);
-    }
+    const sourceFile = proj.addSourceFileAtPath(filePath);
 
     const variableStatements = sourceFile.getStatements().filter(statement => {
       return statement.isKind(SyntaxKind.VariableStatement);
@@ -108,6 +114,7 @@ parentPort.on("message", (message) => {
           functionDeclaration = sourceFile.addFunction({
             name: componentName,
             isExported: variableStatement.isExported(),
+            isDefaultExport: variableStatement.isDefaultExport(),
           });
         } else {
           const firstParam = parameters[0];
@@ -134,6 +141,7 @@ parentPort.on("message", (message) => {
               },
             ],
             isExported: variableStatement.isExported(),
+            isDefaultExport: variableStatement.isDefaultExport(),
           });
 
           functionDeclaration.setBodyText("\\n  const " + destructuringPattern + " = props;\\n\\n  " + bodyContent + "\\n");
@@ -163,6 +171,7 @@ parentPort.on("message", (message) => {
       const componentName = func.getName();
       const destructuringPattern = firstParam.getName();
       const isExported = func.isExported();
+      const isDefaultExport = func.isDefaultExport();
 
       const body = func.getBody();
       if (!body) continue;
@@ -177,6 +186,7 @@ parentPort.on("message", (message) => {
           typeName: "",
           destructuringPattern,
           isExported,
+          isDefaultExport,
           bodyContent,
           isInlineType: true,
         });
@@ -199,6 +209,7 @@ parentPort.on("message", (message) => {
           typeName: typeNode.getText(),
           destructuringPattern,
           isExported,
+          isDefaultExport,
           bodyContent,
           isInlineType: false,
         });
@@ -208,7 +219,7 @@ parentPort.on("message", (message) => {
     }
 
     for (const transformation of allFuncTransformations) {
-      const { componentName, typeText, typeName, destructuringPattern, isExported, bodyContent, isInlineType } = transformation;
+      const { componentName, typeText, typeName, destructuringPattern, isExported, isDefaultExport, bodyContent, isInlineType } = transformation;
 
       if (isInlineType) {
         const propsTypeName = componentName + "Props";
@@ -225,6 +236,7 @@ parentPort.on("message", (message) => {
             type: propsTypeName,
           }],
           isExported,
+          isDefaultExport,
         });
 
         if (destructuringPattern !== "props") {
@@ -245,6 +257,7 @@ parentPort.on("message", (message) => {
             type: typeName,
           }],
           isExported,
+          isDefaultExport,
         });
 
         // Fix rest element naming conflict: ...props -> ...restProps
@@ -308,6 +321,8 @@ const command = Command.make(
           continue;
         }
 
+        yield* Console.log(`Found ${files.length} .tsx files. Checking cache...`);
+
         // Load cache and filter files
         const { filesToProcess, cachedResults } = yield* Effect.tryPromise({
           try: () => loadAndFilterFiles(resolvedDir, files, force, debug),
@@ -342,24 +357,44 @@ const command = Command.make(
 
         const results: TransformResult[] = [...cachedTransformResults];
 
-        const chunkSize = Math.ceil(filesToProcess.length / workers);
-        const chunks: string[][] = [];
-        for (let i = 0; i < filesToProcess.length; i += chunkSize) {
-          chunks.push(filesToProcess.slice(i, i + chunkSize));
-        }
-
         const green = "\x1b[32m";
         const yellow = "\x1b[33m";
         const red = "\x1b[31m";
         const reset = "\x1b[0m";
         let headerPrinted = false;
+        let completedCount = 0;
+        const totalFiles = filesToProcess.length;
 
-        const workerPromises = chunks.map((chunk) =>
-          Effect.gen(function* () {
-            return yield* Effect.async<TransformResult[], never>((resume) => {
-              const workerResults: TransformResult[] = [];
-              let completed = 0;
+        // Worker pool: create N workers, feed files one-by-one via queue
+        const workerResults: TransformResult[] = [];
+        let fileIndex = 0;
 
+        const allResults: TransformResult[] = yield* Effect.async<TransformResult[], never>(
+          (resume) => {
+            let workersAlive = 0;
+            let finished = false;
+
+            function sendNextToWorker(worker: Worker) {
+              if (fileIndex < totalFiles) {
+                const filePath = filesToProcess[fileIndex++];
+                worker.postMessage({ filePath });
+              } else {
+                worker.postMessage({ done: true });
+              }
+            }
+
+            function checkDone() {
+              if (finished) return;
+              if (workersAlive === 0) {
+                finished = true;
+                resume(Effect.succeed(workerResults));
+              }
+            }
+
+            const numWorkers = Math.min(workers, totalFiles);
+
+            for (let i = 0; i < numWorkers; i++) {
+              workersAlive++;
               const worker = new Worker(WORKER_CODE, { eval: true });
 
               worker.on("message", (result: unknown) => {
@@ -376,35 +411,30 @@ const command = Command.make(
                   console.log(`  ${color}${String(duration).padStart(5)}ms${reset}  ${relativePath}`);
                 }
                 workerResults.push(r);
-                completed++;
-                if (completed === chunk.length) {
-                  worker.terminate();
-                  resume(Effect.succeed(workerResults));
-                }
-              });
-
-              worker.on("error", (error) => {
-                resume(Effect.fail(error as never));
-              });
-
-              for (const filePath of chunk) {
+                completedCount++;
                 if (debug) {
-                  const relativePath = filePath.replace(resolvedDir + "/", "");
-                  console.log(`  writing: ${relativePath}`);
+                  console.log(`  progress: ${completedCount}/${totalFiles}`);
                 }
-                worker.postMessage({ filePath });
-              }
-            });
-          }),
+                // Send next file to this worker
+                sendNextToWorker(worker);
+              });
+
+              worker.on("error", () => {
+                // Error will also trigger exit event — no need to handle separately
+              });
+
+              worker.on("exit", () => {
+                workersAlive--;
+                checkDone();
+              });
+
+              // Kick off the first file for this worker
+              sendNextToWorker(worker);
+            }
+          },
         );
 
-        const allResults = yield* Effect.forEach(workerPromises, (effect) => effect, {
-          concurrency: 40,
-        });
-
-        for (const chunkResults of allResults) {
-          results.push(...chunkResults);
-        }
+        results.push(...allResults);
 
         const transformed = results.filter((r) => r.success && r.componentsFound > 0);
         const skipped = results.filter((r) => r.success && r.componentsFound === 0);

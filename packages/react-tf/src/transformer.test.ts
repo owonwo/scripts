@@ -265,4 +265,106 @@ function Avatar({
     expect(output).toContain("...restProps");
     expect(output).not.toContain("...props");
   });
+
+  it("preserves export default on function declaration with inline type", () => {
+    const input = `export default function Box({
+  value
+}: {
+  value: string
+}) {
+  return <div>{value}</div>;
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result.success).toBe(true);
+    expect(result.componentsFound).toBe(1);
+    expect(output).toContain("export default function Box");
+    expect(output).not.toMatch(/export function Box\b/);
+  });
+
+  it("preserves export default on function declaration with named type", () => {
+    const input = `interface BoxProps {
+  value: string;
+  label: string;
+  disabled: boolean;
+}
+
+export default function Box({
+  value,
+  label,
+  disabled
+}: BoxProps) {
+  return <div>{value}</div>;
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result.success).toBe(true);
+    expect(result.componentsFound).toBe(1);
+    expect(output).toContain("export default function Box");
+    expect(output).not.toMatch(/export function Box\b/);
+  });
+
+  it("handles named export (non-default) function declaration", () => {
+    const input = `export function Box({
+  value
+}: {
+  value: string
+}) {
+  return <div>{value}</div>;
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result.success).toBe(true);
+    expect(result.componentsFound).toBe(1);
+    expect(output).toContain("export function Box");
+    expect(output).not.toContain("export default");
+  });
+
+  it("handles non-exported function declaration", () => {
+    const input = `function Box({
+  value
+}: {
+  value: string
+}) {
+  return <div>{value}</div>;
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result.success).toBe(true);
+    expect(result.componentsFound).toBe(1);
+    expect(output).toMatch(/^function Box/m);
+    expect(output).not.toContain("export");
+  });
+
+  it("transforms function declaration with inline type literal and 3+ props", () => {
+    const input = `function TimerUI(props: {
+  className?: string;
+  mode: "expiring" | "expired" | "running";
+  value: ReturnType<typeof formatElapsed>;
+}) {
+  return null
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result.success).toBe(true);
+    expect(result.componentsFound).toBe(1);
+    expect(output).toContain("type TimerUIProps =");
+    expect(output).toContain("function TimerUI(props: TimerUIProps)");
+    expect(output).not.toContain("export");
+  });
 });
