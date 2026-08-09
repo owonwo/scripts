@@ -1,0 +1,1 @@
+{"id":"int-e1308c87abb6f894492b0934145932ad","kind":"field_change","created_at":"2026-08-09T20:36:52.448045Z","actor":"Joseph Owonvwon","issue_id":"react-tf-yxx","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Centralized tsconfig: react-tf-biome now extends root tsconfig.json, removing duplicated compilerOptions."}}

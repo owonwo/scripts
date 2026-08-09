@@ -1,95 +1,65 @@
-import { Command, Options } from "@effect/cli";
+import { Command, HelpDoc, Options, Span } from "@effect/cli";
+import { NodeContext } from "@effect/platform-node";
 import { Cause, Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { CliFormatter } from "./formatters";
+import { CliFormatter, extractHelpDocText as extractHelpDoc } from "./formatters";
 
-describe("CliFormatter.extractHelpDoc", () => {
-  it("extracts text from Text nodes", () => {
-    const doc = { _tag: "Text", value: "hello world" };
-    expect(CliFormatter.extractHelpDoc(doc)).toMatchInlineSnapshot(`"hello world"`);
-  });
-
+describe("extractHelpDoc", () => {
   it("extracts text from Paragraph nodes", () => {
-    const doc = {
-      _tag: "Paragraph",
-      value: { _tag: "Text", value: "paragraph text" },
-    };
-    expect(CliFormatter.extractHelpDoc(doc)).toMatchInlineSnapshot(`"paragraph text"`);
+    const doc = HelpDoc.p("hello world");
+    expect(extractHelpDoc(doc)).toMatchInlineSnapshot(`"hello world"`);
   });
 
-  it("concatenates children in Sequence nodes", () => {
-    const doc = {
-      _tag: "Sequence",
-      children: [
-        { _tag: "Text", value: "first" },
-        { _tag: "Text", value: "second" },
-      ],
-    };
-    expect(CliFormatter.extractHelpDoc(doc)).toMatchInlineSnapshot(`
+  it("extracts text from Header nodes", () => {
+    const doc = HelpDoc.h1("Title");
+    expect(extractHelpDoc(doc)).toMatchInlineSnapshot(`"[0;1mTitle[0m"`);
+  });
+
+  it("concatenates Sequence nodes", () => {
+    const doc = HelpDoc.sequence(HelpDoc.p("first"), HelpDoc.p("second"));
+    expect(extractHelpDoc(doc)).toMatchInlineSnapshot(`
       "first
+
       second"
     `);
   });
 
   it("formats Enumeration nodes with dashes", () => {
-    const doc = {
-      _tag: "Enumeration",
-      elements: [
-        { _tag: "Text", value: "option A" },
-        { _tag: "Text", value: "option B" },
-      ],
-    };
-    expect(CliFormatter.extractHelpDoc(doc)).toMatchInlineSnapshot(`
-      "  - option A
+    const doc = HelpDoc.enumeration([HelpDoc.p("option A"), HelpDoc.p("option B")]);
+    expect(extractHelpDoc(doc)).toMatchInlineSnapshot(`
+      "- option A
+
         - option B"
     `);
   });
 
-  it("returns empty string for null input", () => {
-    expect(CliFormatter.extractHelpDoc(null)).toMatchInlineSnapshot(`""`);
+  it("returns empty string for Empty nodes", () => {
+    expect(extractHelpDoc(HelpDoc.empty)).toMatchInlineSnapshot(`""`);
   });
 
-  it("returns empty string for undefined input", () => {
-    expect(CliFormatter.extractHelpDoc(undefined)).toMatchInlineSnapshot(`""`);
-  });
+  it("handles DescriptionList nodes", () => {
+    const doc = HelpDoc.descriptionList([[Span.text("term"), HelpDoc.p("definition")]]);
+    expect(extractHelpDoc(doc)).toMatchInlineSnapshot(`
+      "[0;1mterm[0m
 
-  it("falls back to JSON.stringify for unknown tags", () => {
-    const doc = { _tag: "Unknown", data: "test" };
-    expect(CliFormatter.extractHelpDoc(doc)).toMatchInlineSnapshot(`
-      "{"_tag":"Unknown","data":"test"}"
+        definition"
     `);
   });
 
   it("handles nested structures (Sequence of Paragraphs)", () => {
-    const doc = {
-      _tag: "Sequence",
-      children: [
-        {
-          _tag: "Paragraph",
-          value: { _tag: "Text", value: "line one" },
-        },
-        {
-          _tag: "Paragraph",
-          value: { _tag: "Text", value: "line two" },
-        },
-      ],
-    };
-    expect(CliFormatter.extractHelpDoc(doc)).toMatchInlineSnapshot(`
+    const doc = HelpDoc.sequence(HelpDoc.p("line one"), HelpDoc.p("line two"));
+    expect(extractHelpDoc(doc)).toMatchInlineSnapshot(`
       "line one
+
       line two"
     `);
   });
 
-  it("handles Enumeration with nested Text nodes", () => {
-    const doc = {
-      _tag: "Enumeration",
-      elements: [
-        { _tag: "Text", value: "first" },
-        { _tag: "Paragraph", value: { _tag: "Text", value: "second" } },
-      ],
-    };
-    expect(CliFormatter.extractHelpDoc(doc)).toMatchInlineSnapshot(`
-      "  - first
+  it("handles Enumeration with nested Paragraphs", () => {
+    const doc = HelpDoc.enumeration([HelpDoc.p("first"), HelpDoc.p("second")]);
+    expect(extractHelpDoc(doc)).toMatchInlineSnapshot(`
+      "- first
+
         - second"
     `);
   });
@@ -99,7 +69,7 @@ describe("CliFormatter.format", () => {
   it("formats InvalidValue errors", () => {
     const cause = Cause.fail({
       _tag: "InvalidValue",
-      error: { _tag: "Text", value: "Received unknown argument: '--foo'" },
+      error: HelpDoc.p("Received unknown argument: '--foo'"),
     });
     expect(CliFormatter.format(cause)).toMatchInlineSnapshot(
       `"Received unknown argument: '--foo'"`
@@ -109,7 +79,7 @@ describe("CliFormatter.format", () => {
   it("formats HelpRequested errors", () => {
     const cause = Cause.fail({
       _tag: "HelpRequested",
-      helpDoc: { _tag: "Text", value: "Usage: my-cli [--help]" },
+      helpDoc: HelpDoc.p("Usage: my-cli [--help]"),
     });
     expect(CliFormatter.format(cause)).toMatchInlineSnapshot(`"Usage: my-cli [--help]"`);
   });
@@ -149,7 +119,8 @@ describe("CliFormatter.format", () => {
         }),
       ),
       Effect.ignore,
-      Effect.runSync,
+      Effect.provide(NodeContext.layer),
+      Effect.runSyncExit,
     );
 
     expect(formatted).toMatchInlineSnapshot(`"Received unknown argument: '--invalid'"`);

@@ -296,7 +296,10 @@ parentPort.on("message", (message) => {
 });
 `;
 
-const paths = Args.path({ name: "path" }).pipe(Args.repeated);
+const paths = Args.path({ name: "path" }).pipe(
+  Args.repeated,
+  Args.map((paths) => paths.filter((p) => !/^--?./.test(p))),
+);
 const workers = Options.integer("workers").pipe(Options.withAlias("w"), Options.withDefault(4));
 const debug = Options.boolean("debug").pipe(Options.withAlias("d"), Options.withDefault(false));
 const force = Options.boolean("force").pipe(Options.withAlias("f"), Options.withDefault(false));
