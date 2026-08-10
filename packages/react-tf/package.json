@@ -8,6 +8,7 @@
   "bin": {
     "nurm": "./dist/cli.js"
   },
+  "files": ["dist"],
   "type": "module",
   "scripts": {
     "build": "vite build",
