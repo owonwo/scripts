@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "tb-debugger": "./bin/tb-debugger.js"
+  },
   "scripts": {
     "dev": "tsx index.ts"
   },

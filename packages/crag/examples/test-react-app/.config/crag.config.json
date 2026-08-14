@@ -1,0 +1,20 @@
+{
+  "input": [
+    {
+      "type": "postman",
+      "path": "./storage/collection.json"
+    },
+    {
+      "type": "openapi",
+      "path": "./storage/collection.yml"
+    }
+  ],
+  "output": "./src/client",
+  "react": {
+    "enabled": true,
+    "output": "./src/hooks"
+  },
+  "plugins": [
+    "@tanstack/react-query"
+  ]
+}

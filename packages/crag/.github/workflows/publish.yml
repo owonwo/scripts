@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - run: pnpm install
+
+      - name: Create .npmrc
+        run: |
+          cat << EOF > ".npmrc"
+          //registry.npmjs.org/:_authToken=\${{ secrets.NPM_TOKEN }}
+          EOF
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm run publish:package
+        env:
+          GITHUB_TOKEN: ${{ secrets.WIGXEL_GITHUB_PACKAGE_TOKEN }}
+          NPM_TOKEN: ${{ secrets.WIGXEL_NPM_TOKEN }}
