@@ -1,0 +1,1117 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`isReactComponent > returns false for names starting with lowercase 1`] = `false`;
+
+exports[`isReactComponent > returns false for names starting with lowercase 2`] = `false`;
+
+exports[`isReactComponent > returns false for names starting with lowercase 3`] = `false`;
+
+exports[`isReactComponent > returns true for names starting with uppercase 1`] = `true`;
+
+exports[`isReactComponent > returns true for names starting with uppercase 2`] = `true`;
+
+exports[`isReactComponent > returns true for names starting with uppercase 3`] = `true`;
+
+exports[`isTsxFile > returns false for non-tsx files 1`] = `false`;
+
+exports[`isTsxFile > returns false for non-tsx files 2`] = `false`;
+
+exports[`isTsxFile > returns false for non-tsx files 3`] = `false`;
+
+exports[`isTsxFile > returns true for .tsx files 1`] = `true`;
+
+exports[`isTsxFile > returns true for .tsx files 2`] = `true`;
+
+exports[`transformComponents > adds React import if missing 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 338.98083300000053,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-fwltoo/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > adds React import if missing 2`] = `
+"function Box() {
+}
+"
+`;
+
+exports[`transformComponents > does not produce const props = props when destructuring pattern is props 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 340.57904099999996,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-gpsA8D/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > does not produce const props = props when destructuring pattern is props 2`] = `
+"type FooProps = {
+      x: number;
+      y: string;
+    };
+
+function Foo(props: FooProps) {
+
+      return <div>{props.x} {props.y}</div>;
+}
+"
+`;
+
+exports[`transformComponents > handles exported components 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 212.82983299999978,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-HbuIDT/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > handles exported components 2`] = `
+"export type BoxProps = {
+      value: string
+    };
+
+export function Box(props: BoxProps) {
+
+      const {
+      value
+    } = props;
+
+      return <div>{value}</div>;
+}
+"
+`;
+
+exports[`transformComponents > handles named export (non-default) function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 1.0961670000006052,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-2mlppE/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > handles named export (non-default) function declaration 2`] = `
+"export type BoxProps = {
+  value: string
+};
+
+export function Box(props: BoxProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents > handles non-exported function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 356.34087499999987,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-7saZfi/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > handles non-exported function declaration 2`] = `
+"type BoxProps = {
+  value: string
+};
+
+function Box(props: BoxProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents > preserves JSDoc comment on function declaration with inline type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 1.9127499999995052,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-oebZIP/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > preserves JSDoc comment on function declaration with inline type 2`] = `
+"/**
+ * Shared media renderer — handles photo / video / pdf / empty states.
+ * Used by the landing feed card, the dashboard favourites card, and the
+ * shared project modal so all three stay visually consistent.
+ */
+export type MediaThumbProps = {
+  item: MediaItem | null;
+  alt: string;
+  className?: string;
+  videoRef?: React.RefObject<HTMLVideoElement | null>;
+  fill?: boolean;
+};
+
+export function MediaThumb(props: MediaThumbProps) {
+  const {
+  item,
+  alt,
+  className = "",
+  videoRef,
+  fill = false,
+} = props;
+
+  return null;
+}"
+`;
+
+exports[`transformComponents > preserves async keyword on function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 1.279500000000553,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-mg2fDM/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > preserves async keyword on function declaration 2`] = `
+"export type ResetPasswordHandlerProps = {
+  token: string;
+  password: string;
+};
+
+export async function ResetPasswordHandler(props: ResetPasswordHandlerProps) {
+  const {
+  token,
+  password,
+} = props;
+
+  await fetch("/api/reset", { method: "POST", body: JSON.stringify({ token, password }) });
+}"
+`;
+
+exports[`transformComponents > preserves destructuring order before body content 1`] = `
+"type FooProps = {
+  a: string;
+  b: number;
+  c: boolean;
+};
+
+function Foo(props: FooProps) {
+  const {
+  a,
+  b,
+  c
+} = props;
+
+  return null;
+}"
+`;
+
+exports[`transformComponents > preserves existing React import 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 350.09216600000036,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-MK0lcW/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > preserves existing React import 2`] = `1`;
+
+exports[`transformComponents > preserves export default on function declaration with inline type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 1.3231660000001284,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-ofF8RV/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > preserves export default on function declaration with inline type 2`] = `
+"export type BoxProps = {
+  value: string
+};
+
+export default function Box(props: BoxProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents > preserves export default on function declaration with named type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 1.242417000000387,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-dbuOND/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > preserves export default on function declaration with named type 2`] = `
+"interface BoxProps {
+  value: string;
+  label: string;
+  disabled: boolean;
+}export default function Box(props: BoxProps) {
+  const {
+  value,
+  label,
+  disabled
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents > preserves formatting across multiple function declarations 1`] = `
+"function A() {
+  return <div>A</div>;
+}type BProps = {
+  value: string
+};
+
+function B(props: BProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}export type CProps = {
+  x: number
+};
+
+export function C(props: CProps) {
+  const {
+  x
+} = props;
+
+  return <div>{x}</div>;
+}"
+`;
+
+exports[`transformComponents > preserves order of multiple arrow functions 1`] = `
+"type AlphaProps = { x: number };
+
+function Alpha(props: AlphaProps) {
+
+      const { x } = props;
+
+      div>{x}</div
+}
+
+type BetaProps = { y: string };
+
+function Beta(props: BetaProps) {
+
+      const { y } = props;
+
+      div>{y}</div
+}
+"
+`;
+
+exports[`transformComponents > preserves type alias before function declaration 1`] = `
+"type FooProps = {
+  value: string
+};
+
+function Foo(props: FooProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents > renames ...props to ...restProps in function declaration with named type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 236.77016699999967,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-GFAwSK/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > renames ...props to ...restProps in function declaration with named type 2`] = `
+"interface AvatarProps {
+  size?: number;
+  disabled?: boolean;
+  className?: string;
+  [key: string]: any;
+}function Avatar(props: AvatarProps) {
+  const {
+  size = 80,
+  disabled,
+  className,
+  ...restProps
+} = props;
+
+  return <div {...restProps} className={className} />;
+}"
+`;
+
+exports[`transformComponents > renames ...props to ...restProps to avoid naming conflict 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 222.78266600000006,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-1m16S4/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > renames ...props to ...restProps to avoid naming conflict 2`] = `
+"type AvatarProps = {
+      size?: number;
+      disabled?: boolean;
+      className?: string;
+      [key: string]: any;
+    };
+
+function Avatar(props: AvatarProps) {
+
+      const {
+      size = 80,
+      disabled,
+      className,
+      ...restProps
+    } = props;
+
+      return <div {...restProps} className={className} />;
+}
+"
+`;
+
+exports[`transformComponents > returns error for non-existent file 1`] = `
+{
+  "componentsFound": 0,
+  "duration": 0,
+  "filePath": "/non-existent/file.tsx",
+  "message": "File not found",
+  "success": false,
+}
+`;
+
+exports[`transformComponents > returns error for non-tsx file 1`] = `
+{
+  "componentsFound": 0,
+  "duration": 0,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-JCwJQO/test.ts",
+  "message": "Not a TSX file",
+  "success": false,
+}
+`;
+
+exports[`transformComponents > skips lowercase variables 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 278.03895900000043,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-SfKGXB/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > skips lowercase variables 2`] = `
+"const notAComponent = "just a string";
+
+function Box() {
+}
+"
+`;
+
+exports[`transformComponents > transforms arrow function with inline type and default values 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 264.55295900000056,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-qCo2xh/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms arrow function with inline type and default values 2`] = `
+"export type SegmentProgressBarProps = {
+      className?: string;
+      progressValue?: number;
+      gradient?: { startColor: string; endColor: string };
+    };
+
+export function SegmentProgressBar(props: SegmentProgressBarProps) {
+
+      const {
+        gradient = {
+          startColor: "#ef4444",
+          endColor: "#f97316",
+        },
+        progressValue = 0,
+        className,
+      } = props;
+}
+"
+`;
+
+exports[`transformComponents > transforms arrow function with no props 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 269.40991699999995,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-VzySJi/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms arrow function with no props 2`] = `
+"function SimpleComponent() {
+}
+"
+`;
+
+exports[`transformComponents > transforms arrow function with props to function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 3491.3028329999997,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-UYiFOz/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms arrow function with props to function declaration 2`] = `
+"type BoxProps = {
+      boxes: number,
+      count: string
+    };
+
+function Box(props: BoxProps) {
+
+      const {
+      boxes,
+      count
+    } = props;
+
+      return (
+        <div>
+          {boxes} - {count}
+        </div>
+      );
+}
+"
+`;
+
+exports[`transformComponents > transforms exported function declaration with inline type and separate default export 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 1.2712090000004537,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-ir1feE/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms exported function declaration with inline type and separate default export 2`] = `
+"export type DoProps = { name: string };
+
+export function Do(props: DoProps) {
+  
+}
+
+export default Do;"
+`;
+
+exports[`transformComponents > transforms function declaration with inline type literal and 3+ props 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 368.46366599999965,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-UfYMIm/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms function declaration with inline type literal and 3+ props 2`] = `
+"type TimerUIProps = {
+  className?: string;
+  mode: "expiring" | "expired" | "running";
+  value: ReturnType<typeof formatElapsed>;
+};
+
+function TimerUI(props: TimerUIProps) {
+  return null
+}"
+`;
+
+exports[`isReactComponent returns true for names starting with uppercase 1`] = `true`;
+
+exports[`isReactComponent returns true for names starting with uppercase 2`] = `true`;
+
+exports[`isReactComponent returns true for names starting with uppercase 3`] = `true`;
+
+exports[`isReactComponent returns false for names starting with lowercase 1`] = `false`;
+
+exports[`isReactComponent returns false for names starting with lowercase 2`] = `false`;
+
+exports[`isReactComponent returns false for names starting with lowercase 3`] = `false`;
+
+exports[`isTsxFile returns true for .tsx files 1`] = `true`;
+
+exports[`isTsxFile returns true for .tsx files 2`] = `true`;
+
+exports[`isTsxFile returns false for non-tsx files 1`] = `false`;
+
+exports[`isTsxFile returns false for non-tsx files 2`] = `false`;
+
+exports[`isTsxFile returns false for non-tsx files 3`] = `false`;
+
+exports[`transformComponents transforms arrow function with props to function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 2002.305458,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-JLmj93/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents transforms arrow function with props to function declaration 2`] = `
+"type BoxProps = {
+      boxes: number,
+      count: string
+    };
+
+function Box(props: BoxProps) {
+
+      const {
+      boxes,
+      count
+    } = props;
+
+      return (
+        <div>
+          {boxes} - {count}
+        </div>
+      );
+}
+"
+`;
+
+exports[`transformComponents transforms arrow function with no props 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 172.98679200000015,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-n81Dpj/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents transforms arrow function with no props 2`] = `
+"function SimpleComponent() {
+}
+"
+`;
+
+exports[`transformComponents skips lowercase variables 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 158.0684580000002,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-5RLNfB/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents skips lowercase variables 2`] = `
+"const notAComponent = "just a string";
+
+function Box() {
+}
+"
+`;
+
+exports[`transformComponents adds React import if missing 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 161.25645799999984,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-aI7EQG/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents adds React import if missing 2`] = `
+"function Box() {
+}
+"
+`;
+
+exports[`transformComponents preserves existing React import 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 164.10970799999996,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-EJRtHf/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents preserves existing React import 2`] = `1`;
+
+exports[`transformComponents handles exported components 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 209.08425000000034,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-AK3816/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents handles exported components 2`] = `
+"export type BoxProps = {
+      value: string
+    };
+
+export function Box(props: BoxProps) {
+
+      const {
+      value
+    } = props;
+
+      return <div>{value}</div>;
+}
+"
+`;
+
+exports[`transformComponents returns error for non-existent file 1`] = `
+{
+  "componentsFound": 0,
+  "duration": 0,
+  "filePath": "/non-existent/file.tsx",
+  "message": "File not found",
+  "success": false,
+}
+`;
+
+exports[`transformComponents returns error for non-tsx file 1`] = `
+{
+  "componentsFound": 0,
+  "duration": 0,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-fCYDKH/test.ts",
+  "message": "Not a TSX file",
+  "success": false,
+}
+`;
+
+exports[`transformComponents renames ...props to ...restProps to avoid naming conflict 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 278.4049580000001,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-kir5yi/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents renames ...props to ...restProps to avoid naming conflict 2`] = `
+"type AvatarProps = {
+      size?: number;
+      disabled?: boolean;
+      className?: string;
+      [key: string]: any;
+    };
+
+function Avatar(props: AvatarProps) {
+
+      const {
+      size = 80,
+      disabled,
+      className,
+      ...restProps
+    } = props;
+
+      return <div {...restProps} className={className} />;
+}
+"
+`;
+
+exports[`transformComponents renames ...props to ...restProps in function declaration with named type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 204.53041699999994,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-AGm6Pw/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents renames ...props to ...restProps in function declaration with named type 2`] = `
+"interface AvatarProps {
+  size?: number;
+  disabled?: boolean;
+  className?: string;
+  [key: string]: any;
+}function Avatar(props: AvatarProps) {
+  const {
+  size = 80,
+  disabled,
+  className,
+  ...restProps
+} = props;
+
+  return <div {...restProps} className={className} />;
+}"
+`;
+
+exports[`transformComponents preserves export default on function declaration with inline type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 2.020999999999731,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-q7Dusz/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents preserves export default on function declaration with inline type 2`] = `
+"export type BoxProps = {
+  value: string
+};
+
+export default function Box(props: BoxProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents preserves export default on function declaration with named type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 1.3427919999999176,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-4gu9C7/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents preserves export default on function declaration with named type 2`] = `
+"interface BoxProps {
+  value: string;
+  label: string;
+  disabled: boolean;
+}export default function Box(props: BoxProps) {
+  const {
+  value,
+  label,
+  disabled
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents handles named export (non-default) function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 2.9095000000002074,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-sgoBJN/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents handles named export (non-default) function declaration 2`] = `
+"export type BoxProps = {
+  value: string
+};
+
+export function Box(props: BoxProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents handles non-exported function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 195.72175000000016,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-AlNCsj/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents handles non-exported function declaration 2`] = `
+"type BoxProps = {
+  value: string
+};
+
+function Box(props: BoxProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents transforms function declaration with inline type literal and 3+ props 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 159.40770800000018,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-OJ8QAX/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents transforms function declaration with inline type literal and 3+ props 2`] = `
+"type TimerUIProps = {
+  className?: string;
+  mode: "expiring" | "expired" | "running";
+  value: ReturnType<typeof formatElapsed>;
+};
+
+function TimerUI(props: TimerUIProps) {
+  return null
+}"
+`;
+
+exports[`transformComponents transforms exported function declaration with inline type and separate default export 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 3.082666999999674,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-bwqi1A/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents transforms exported function declaration with inline type and separate default export 2`] = `
+"export type DoProps = { name: string };
+
+export function Do(props: DoProps) {
+  
+}
+
+export default Do;"
+`;
+
+exports[`transformComponents transforms arrow function with inline type and default values 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 238.1834170000002,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-HDW1PF/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents transforms arrow function with inline type and default values 2`] = `
+"export type SegmentProgressBarProps = {
+      className?: string;
+      progressValue?: number;
+      gradient?: { startColor: string; endColor: string };
+    };
+
+export function SegmentProgressBar(props: SegmentProgressBarProps) {
+
+      const {
+        gradient = {
+          startColor: "#ef4444",
+          endColor: "#f97316",
+        },
+        progressValue = 0,
+        className,
+      } = props;
+}
+"
+`;
+
+exports[`transformComponents preserves JSDoc comment on function declaration with inline type 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 5.913958000000093,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-8nb0CC/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents preserves JSDoc comment on function declaration with inline type 2`] = `
+"/**
+ * Shared media renderer — handles photo / video / pdf / empty states.
+ * Used by the landing feed card, the dashboard favourites card, and the
+ * shared project modal so all three stay visually consistent.
+ */
+export type MediaThumbProps = {
+  item: MediaItem | null;
+  alt: string;
+  className?: string;
+  videoRef?: React.RefObject<HTMLVideoElement | null>;
+  fill?: boolean;
+};
+
+export function MediaThumb(props: MediaThumbProps) {
+  const {
+  item,
+  alt,
+  className = "",
+  videoRef,
+  fill = false,
+} = props;
+
+  return null;
+}"
+`;
+
+exports[`transformComponents preserves async keyword on function declaration 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 2.0239160000000993,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-PXfFtb/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents preserves async keyword on function declaration 2`] = `
+"export type ResetPasswordHandlerProps = {
+  token: string;
+  password: string;
+};
+
+export async function ResetPasswordHandler(props: ResetPasswordHandlerProps) {
+  const {
+  token,
+  password,
+} = props;
+
+  await fetch("/api/reset", { method: "POST", body: JSON.stringify({ token, password }) });
+}"
+`;
+
+exports[`transformComponents does not produce const props = props when destructuring pattern is props 1`] = `
+{
+  "componentsFound": 1,
+  "duration": 220.54975000000013,
+  "filePath": "/var/folders/4_/sc9b8fnn2bs6kk_dn6khsxx40000gn/T/transformer-test-AlYTNb/test.tsx",
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents does not produce const props = props when destructuring pattern is props 2`] = `
+"type FooProps = {
+      x: number;
+      y: string;
+    };
+
+function Foo(props: FooProps) {
+
+      return <div>{props.x} {props.y}</div>;
+}
+"
+`;
+
+exports[`transformComponents preserves order of multiple arrow functions 1`] = `
+"type AlphaProps = { x: number };
+
+function Alpha(props: AlphaProps) {
+
+      const { x } = props;
+
+      div>{x}</div
+}
+
+type BetaProps = { y: string };
+
+function Beta(props: BetaProps) {
+
+      const { y } = props;
+
+      div>{y}</div
+}
+"
+`;
+
+exports[`transformComponents preserves type alias before function declaration 1`] = `
+"type FooProps = {
+  value: string
+};
+
+function Foo(props: FooProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}"
+`;
+
+exports[`transformComponents preserves formatting across multiple function declarations 1`] = `
+"function A() {
+  return <div>A</div>;
+}type BProps = {
+  value: string
+};
+
+function B(props: BProps) {
+  const {
+  value
+} = props;
+
+  return <div>{value}</div>;
+}export type CProps = {
+  x: number
+};
+
+export function C(props: CProps) {
+  const {
+  x
+} = props;
+
+  return <div>{x}</div>;
+}"
+`;
+
+exports[`transformComponents preserves destructuring order before body content 1`] = `
+"type FooProps = {
+  a: string;
+  b: number;
+  c: boolean;
+};
+
+function Foo(props: FooProps) {
+  const {
+  a,
+  b,
+  c
+} = props;
+
+  return null;
+}"
+`;

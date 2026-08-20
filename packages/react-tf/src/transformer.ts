@@ -1,6 +1,6 @@
-import { Project, SyntaxKind, SourceFile } from "ts-morph";
-import * as path from "node:path";
 import * as fs from "node:fs";
+import * as path from "node:path";
+import { Project, SyntaxKind } from "ts-morph";
 
 export interface TransformResult {
   readonly filePath: string;
@@ -16,6 +16,14 @@ export function isReactComponent(name: string): boolean {
 
 export function isTsxFile(filePath: string): boolean {
   return path.extname(filePath).toLowerCase() === ".tsx";
+}
+
+function isComplexType(typeNode: any): boolean {
+  const kind = typeNode.getKind();
+  // TypeReference (e.g. BoxProps, React.ComponentProps<...>) and QualifiedName are named types
+  if (kind === SyntaxKind.TypeReference || kind === SyntaxKind.QualifiedName) return false;
+  // TypeLiteral, IntersectionType, UnionType, etc. are complex inline types
+  return true;
 }
 
 let sharedProject: Project | null = null;
@@ -114,15 +122,14 @@ export function transformComponents(filePath: string, project?: Project): Transf
           const firstParam = parameters[0];
           const typeNode = firstParam.getTypeNode();
 
-          if (!typeNode || !typeNode.isKind(SyntaxKind.TypeLiteral)) continue;
+          if (!typeNode || !isComplexType(typeNode)) continue;
 
-          const typeLiteral = typeNode.asKindOrThrow(SyntaxKind.TypeLiteral);
           const destructuringPattern = firstParam.getName();
           const propsTypeName = `${componentName}Props`;
 
           sourceFile.addTypeAlias({
             name: propsTypeName,
-            type: typeLiteral.getText(),
+            type: typeNode.getText(),
             isExported: variableStatement.isExported(),
           });
 
@@ -144,9 +151,13 @@ export function transformComponents(filePath: string, project?: Project): Transf
             fixedPattern !== destructuringPattern
               ? bodyContent.replace(/\.\.\.props\b/g, "...restProps")
               : bodyContent;
-          functionDeclaration.setBodyText(
-            `\n  const ${fixedPattern} = props;\n\n  ${fixedBodyContent}\n`,
-          );
+          if (fixedPattern !== "props") {
+            functionDeclaration.setBodyText(
+              `\n  const ${fixedPattern} = props;\n\n  ${fixedBodyContent}\n`,
+            );
+          } else {
+            functionDeclaration.setBodyText(`\n  ${fixedBodyContent}\n`);
+          }
         }
 
         statement.remove();
@@ -164,9 +175,12 @@ export function transformComponents(filePath: string, project?: Project): Transf
       isDefaultExport: boolean;
       bodyContent: string;
       isInlineType: boolean;
+      jsDocs: string[];
+      isAsync: boolean;
+      start: number;
+      end: number;
     }> = [];
 
-    // Get fresh list of functions
     const functionDeclarations = sourceFile.getFunctions().filter((func) => {
       const name = func.getName();
       return name && isReactComponent(name);
@@ -184,29 +198,37 @@ export function transformComponents(filePath: string, project?: Project): Transf
       const componentName = func.getName()!;
       const destructuringPattern = firstParam.getName();
       const isExported = func.isExported();
-      const isDefaultExport = func.isDefaultExport();
+      const isDefaultExport = func.getModifiers().some(m => m.getKind() === SyntaxKind.DefaultKeyword);
 
-      // Get function body content
       const body = func.getBody();
       if (!body) continue;
       const bodyText = body.getText();
       const bodyContent = bodyText.slice(1, -1).trim();
 
-      if (typeNode.isKind(SyntaxKind.TypeLiteral)) {
-        // Inline type literal - always transform
-        const typeLiteral = typeNode.asKindOrThrow(SyntaxKind.TypeLiteral);
+      const jsDocs = func.getJsDocs().map(doc => doc.getCommentText() ?? "");
+      const isAsync = func.isAsync();
+
+      // Position range [start, end) in the original source text
+      const start = func.getFullStart();
+      const end = func.getEnd();
+
+      if (isComplexType(typeNode)) {
+        const propsTypeName = `${componentName}Props`;
         allFuncTransformations.push({
           componentName,
-          typeText: typeLiteral.getText(),
-          typeName: "",
+          typeText: typeNode.getText(),
+          typeName: propsTypeName,
           destructuringPattern,
           isExported,
           isDefaultExport,
           bodyContent,
           isInlineType: true,
+          jsDocs,
+          isAsync,
+          start,
+          end,
         });
       } else {
-        // Named type - check if needs transformation (>=3 props or has defaults)
         if (firstParam.getNameNode().getKind() !== SyntaxKind.ObjectBindingPattern) continue;
 
         const objectPattern = firstParam
@@ -230,83 +252,77 @@ export function transformComponents(filePath: string, project?: Project): Transf
           isDefaultExport,
           bodyContent,
           isInlineType: false,
+          jsDocs,
+          isAsync,
+          start,
+          end,
         });
       }
-
-      // Remove the old function
-      func.remove();
     }
 
-    // Apply all transformations
-    for (const transformation of allFuncTransformations) {
+    // Sort by position ascending
+    allFuncTransformations.sort((a, b) => a.start - b.start);
+
+    // Build new source by processing from bottom to top
+    const srcText = sourceFile.getFullText();
+    let result = srcText;
+
+    for (let i = allFuncTransformations.length - 1; i >= 0; i--) {
+      const t = allFuncTransformations[i];
       const {
-        componentName,
-        typeText,
-        typeName,
-        destructuringPattern,
-        isExported,
-        isDefaultExport,
-        bodyContent,
-        isInlineType,
-      } = transformation;
+        componentName, typeText, typeName, destructuringPattern,
+        isExported, isDefaultExport, bodyContent, isInlineType,
+        jsDocs, isAsync, start, end,
+      } = t;
 
-      if (isInlineType) {
-        // Inline type - extract to type alias
-        const propsTypeName = `${componentName}Props`;
-        sourceFile.addTypeAlias({
-          name: propsTypeName,
-          type: typeText,
-          isExported,
-        });
+      const propsTypeName = typeName || `${componentName}Props`;
+      const lines: string[] = [];
 
-        const newFunc = sourceFile.addFunction({
-          name: componentName,
-          parameters: [
-            {
-              name: "props",
-              type: propsTypeName,
-            },
-          ],
-          isExported,
-          isDefaultExport,
-        });
-
-        if (destructuringPattern !== "props") {
-          // Fix rest element naming conflict: ...props -> ...restProps
-          const fixedPattern = destructuringPattern.replace(/\.\.\.props\b/g, "...restProps");
-          const fixedBodyContent =
-            fixedPattern !== destructuringPattern
-              ? bodyContent.replace(/\.\.\.props\b/g, "...restProps")
-              : bodyContent;
-          newFunc.setBodyText(`\n  const ${fixedPattern} = props;\n\n  ${fixedBodyContent}\n`);
-        } else {
-          newFunc.setBodyText(`\n  ${bodyContent}\n`);
+      if (jsDocs.length > 0) {
+        lines.push("/**");
+        for (const line of jsDocs) {
+          for (const l of line.split("\n")) {
+            lines.push(` * ${l.trim()}`);
+          }
         }
-      } else {
-        // Named type - move destructuring to body
-        const newFunc = sourceFile.addFunction({
-          name: componentName,
-          parameters: [
-            {
-              name: "props",
-              type: typeName,
-            },
-          ],
-          isExported,
-          isDefaultExport,
-        });
+        lines.push(" */");
+      }
 
-        // Fix rest element naming conflict: ...props -> ...restProps
+      const exportPrefix = isExported ? "export " : "";
+      if (isInlineType) {
+        lines.push(`${exportPrefix}type ${propsTypeName} = ${typeText};`);
+        lines.push("");
+      }
+
+      let funcLine = "";
+      if (isExported) funcLine += "export ";
+      if (isDefaultExport) funcLine += "default ";
+      if (isAsync) funcLine += "async ";
+      funcLine += `function ${componentName}(props: ${propsTypeName}) {`;
+      lines.push(funcLine);
+
+      if (destructuringPattern !== "props") {
         const fixedPattern = destructuringPattern.replace(/\.\.\.props\b/g, "...restProps");
         const fixedBodyContent =
           fixedPattern !== destructuringPattern
             ? bodyContent.replace(/\.\.\.props\b/g, "...restProps")
             : bodyContent;
-        newFunc.setBodyText(`\n  const ${fixedPattern} = props;\n\n  ${fixedBodyContent}\n`);
+        lines.push(`  const ${fixedPattern} = props;`);
+        lines.push("");
+        lines.push(`  ${fixedBodyContent}`);
+      } else {
+        lines.push(`  ${bodyContent}`);
       }
+
+      lines.push("}");
+
+      // Replace the original range [start, end) with the new text
+      result = result.slice(0, start) + lines.join("\n") + result.slice(end);
 
       transformedCount++;
     }
+
+    sourceFile.replaceWithText(result);
 
     sourceFile.saveSync();
     const duration = performance.now() - start;

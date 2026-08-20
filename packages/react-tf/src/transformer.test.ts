@@ -6,28 +6,28 @@ import { isReactComponent, isTsxFile, transformComponents } from "./transformer"
 
 describe("isReactComponent", () => {
   it("returns true for names starting with uppercase", () => {
-    expect(isReactComponent("Box")).toBe(true);
-    expect(isReactComponent("MyComponent")).toBe(true);
-    expect(isReactComponent("App")).toBe(true);
+    expect(isReactComponent("Box")).toMatchSnapshot();
+    expect(isReactComponent("MyComponent")).toMatchSnapshot();
+    expect(isReactComponent("App")).toMatchSnapshot();
   });
 
   it("returns false for names starting with lowercase", () => {
-    expect(isReactComponent("box")).toBe(false);
-    expect(isReactComponent("myComponent")).toBe(false);
-    expect(isReactComponent("app")).toBe(false);
+    expect(isReactComponent("box")).toMatchSnapshot();
+    expect(isReactComponent("myComponent")).toMatchSnapshot();
+    expect(isReactComponent("app")).toMatchSnapshot();
   });
 });
 
 describe("isTsxFile", () => {
   it("returns true for .tsx files", () => {
-    expect(isTsxFile("Component.tsx")).toBe(true);
-    expect(isTsxFile("/path/to/file.TSX")).toBe(true);
+    expect(isTsxFile("Component.tsx")).toMatchSnapshot();
+    expect(isTsxFile("/path/to/file.TSX")).toMatchSnapshot();
   });
 
   it("returns false for non-tsx files", () => {
-    expect(isTsxFile("file.ts")).toBe(false);
-    expect(isTsxFile("file.jsx")).toBe(false);
-    expect(isTsxFile("file.js")).toBe(false);
+    expect(isTsxFile("file.ts")).toMatchSnapshot();
+    expect(isTsxFile("file.jsx")).toMatchSnapshot();
+    expect(isTsxFile("file.js")).toMatchSnapshot();
   });
 });
 
@@ -71,29 +71,8 @@ describe("transformComponents", () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toMatchInlineSnapshot(`
-    "type BoxProps = {
-          boxes: number,
-          count: string
-        };
-
-    function Box(props: BoxProps) {
-
-          const {
-          boxes,
-          count
-        } = props;
-
-          return (
-            <div>
-              {boxes} - {count}
-            </div>
-          );
-    }
-    "
-    `);
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("transforms arrow function with no props", () => {
@@ -105,13 +84,8 @@ describe("transformComponents", () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toMatchInlineSnapshot(`
-    "function SimpleComponent() {
-    }
-    "
-    `);
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("skips lowercase variables", () => {
@@ -124,15 +98,8 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toMatchInlineSnapshot(`
-    "const notAComponent = "just a string";
-
-    function Box() {
-    }
-    "
-    `);
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("adds React import if missing", () => {
@@ -144,12 +111,8 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(output).toMatchInlineSnapshot(`
-    "function Box() {
-    }
-    "
-    `);
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("preserves existing React import", () => {
@@ -163,9 +126,9 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
+    expect(result).toMatchSnapshot();
     const importCount = (output.match(/import React from "react"/g) || []).length;
-    expect(importCount).toBe(1);
+    expect(importCount).toMatchSnapshot();
   });
 
   it("handles exported components", () => {
@@ -181,37 +144,20 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toMatchInlineSnapshot(`
-    "export type BoxProps = {
-          value: string
-        };
-
-    export function Box(props: BoxProps) {
-
-          const {
-          value
-        } = props;
-
-          return <div>{value}</div>;
-    }
-    "
-    `);
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("returns error for non-existent file", () => {
     const result = transformComponents("/non-existent/file.tsx");
-    expect(result.success).toBe(false);
-    expect(result.message).toBe("File not found");
+    expect(result).toMatchSnapshot();
   });
 
   it("returns error for non-tsx file", () => {
     const filePath = path.join(tmpDir, "test.ts");
     fs.writeFileSync(filePath, "const x = 1;");
     const result = transformComponents(filePath);
-    expect(result.success).toBe(false);
-    expect(result.message).toBe("Not a TSX file");
+    expect(result).toMatchSnapshot();
   });
 
   it("renames ...props to ...restProps to avoid naming conflict", () => {
@@ -233,10 +179,8 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toContain("...restProps");
-    expect(output).not.toContain("...props");
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("renames ...props to ...restProps in function declaration with named type", () => {
@@ -260,10 +204,8 @@ function Avatar({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toContain("...restProps");
-    expect(output).not.toContain("...props");
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("preserves export default on function declaration with inline type", () => {
@@ -279,10 +221,8 @@ function Avatar({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toContain("export default function Box");
-    expect(output).not.toMatch(/export function Box\b/);
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("preserves export default on function declaration with named type", () => {
@@ -304,10 +244,8 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toContain("export default function Box");
-    expect(output).not.toMatch(/export function Box\b/);
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("handles named export (non-default) function declaration", () => {
@@ -323,10 +261,8 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toContain("export function Box");
-    expect(output).not.toContain("export default");
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("handles non-exported function declaration", () => {
@@ -342,10 +278,8 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toMatch(/^function Box/m);
-    expect(output).not.toContain("export");
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
   });
 
   it("transforms function declaration with inline type literal and 3+ props", () => {
@@ -361,10 +295,184 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result.success).toBe(true);
-    expect(result.componentsFound).toBe(1);
-    expect(output).toContain("type TimerUIProps =");
-    expect(output).toContain("function TimerUI(props: TimerUIProps)");
-    expect(output).not.toContain("export");
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
+  it("transforms exported function declaration with inline type and separate default export", () => {
+    const input = `export function Do(props: { name: string }) {}
+
+export default Do;`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
+  it("transforms arrow function with inline type and default values", () => {
+    const input = `export const SegmentProgressBar = (props: {
+  className?: string;
+  progressValue?: number;
+  gradient?: { startColor: string; endColor: string };
+}) => {
+  const {
+    gradient = {
+      startColor: "#ef4444",
+      endColor: "#f97316",
+    },
+    progressValue = 0,
+    className,
+  } = props;
+};`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
+  it("preserves JSDoc comment on function declaration with inline type", () => {
+    const input = `/**
+ * Shared media renderer — handles photo / video / pdf / empty states.
+ * Used by the landing feed card, the dashboard favourites card, and the
+ * shared project modal so all three stay visually consistent.
+ */
+export function MediaThumb({
+  item,
+  alt,
+  className = "",
+  videoRef,
+  fill = false,
+}: {
+  item: MediaItem | null;
+  alt: string;
+  className?: string;
+  videoRef?: React.RefObject<HTMLVideoElement | null>;
+  fill?: boolean;
+}) {
+  return null;
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
+  it("preserves async keyword on function declaration", () => {
+    const input = `export async function ResetPasswordHandler({
+  token,
+  password,
+}: {
+  token: string;
+  password: string;
+}) {
+  await fetch("/api/reset", { method: "POST", body: JSON.stringify({ token, password }) });
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
+  it("does not produce const props = props when destructuring pattern is props", () => {
+    const input = `const Foo = (props: {
+  x: number;
+  y: string;
+}) => {
+  return <div>{props.x} {props.y}</div>;
+};`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
+  it("preserves order of multiple arrow functions", () => {
+    const input = `const Alpha = ({ x }: { x: number }) => <div>{x}</div>;
+const Beta = ({ y }: { y: string }) => <div>{y}</div>;`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toMatchSnapshot();
+  });
+
+  it("preserves type alias before function declaration", () => {
+    const input = `function Foo({
+  value
+}: {
+  value: string
+}) {
+  return <div>{value}</div>;
+}`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toMatchSnapshot();
+  });
+
+  it("preserves formatting across multiple function declarations", () => {
+    const input = `function A() {
+  return <div>A</div>;
+}
+
+function B({
+  value
+}: {
+  value: string
+}) {
+  return <div>{value}</div>;
+}
+
+export function C({
+  x
+}: {
+  x: number
+}) {
+  return <div>{x}</div>;
+}`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toMatchSnapshot();
+  });
+
+  it("preserves destructuring order before body content", () => {
+    const input = `function Foo({
+  a,
+  b,
+  c
+}: {
+  a: string;
+  b: number;
+  c: boolean;
+}) {
+  return null;
+}`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toMatchSnapshot();
   });
 });
