@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@wigxel/crag": "workspace:*"
+    "@wigxel/crag": "workspace:*",
+    "@tanstack/react-query": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
