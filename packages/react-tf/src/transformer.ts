@@ -82,6 +82,15 @@ export function transformComponents(filePath: string, project?: Project): Transf
       return statement.isKind(SyntaxKind.VariableStatement);
     });
 
+    // Collect and remove separate `export default X;` statement
+    let defaultExportName: string | null = null;
+    const exportAssignments = sourceFile.getStatements()
+      .filter(s => s.isKind(SyntaxKind.ExportAssignment));
+    for (const ea of exportAssignments) {
+      defaultExportName = ea.asKindOrThrow(SyntaxKind.ExportAssignment).getExpression().getText();
+      ea.remove();
+    }
+
     let transformedCount = 0;
 
     for (const statement of variableStatements) {
@@ -117,6 +126,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
             name: componentName,
             isExported: variableStatement.isExported(),
             isDefaultExport: variableStatement.isDefaultExport(),
+            isAsync: arrowFunc.isAsync(),
           });
         } else {
           const firstParam = parameters[0];
@@ -143,6 +153,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
             ],
             isExported: variableStatement.isExported(),
             isDefaultExport: variableStatement.isDefaultExport(),
+            isAsync: arrowFunc.isAsync(),
           });
 
           // Fix rest element naming conflict: ...props -> ...restProps
@@ -320,6 +331,11 @@ export function transformComponents(filePath: string, project?: Project): Transf
       result = result.slice(0, start) + lines.join("\n") + result.slice(end);
 
       transformedCount++;
+    }
+
+    // Re-append separate export default statement at the end
+    if (defaultExportName) {
+      result += `\nexport default ${defaultExportName};`;
     }
 
     sourceFile.replaceWithText(result);

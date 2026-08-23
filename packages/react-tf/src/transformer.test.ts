@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { isReactComponent, isTsxFile, transformComponents } from "./transformer";
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { getSharedProject, isReactComponent, isTsxFile, transformComponents } from "./transformer";
 
 describe("isReactComponent", () => {
   it("returns true for names starting with uppercase", () => {
@@ -34,6 +34,10 @@ describe("isTsxFile", () => {
 describe("transformComponents", () => {
   let tmpDir: string;
 
+  beforeAll(() => {
+    getSharedProject();
+  });
+
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "transformer-test-"));
   });
@@ -58,7 +62,7 @@ describe("transformComponents", () => {
         const { duration, filePath, ...rest } = result;
         expect(rest).toMatchSnapshot();
         expect(typeof duration).toBe("number");
-        expect(duration).toBeLessThan(2000);
+        expect(duration).toBeLessThan(1000);
         expect(typeof filePath).toBe("string");
         expect(filePath.length).toBeGreaterThan(0);
         return this;
@@ -336,6 +340,22 @@ export default Do;`;
     const output = readFile(filePath);
 
     expect(output).toContain("export default function Widget(props: WidgetProps");
+  });
+
+  it("preserves async and moves export default to end for arrow functions", () => {
+    const input = `const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+  return ();
+};
+
+export default DashboardLayout;`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toContain("async function DashboardLayout(");
+    const lines = output.trim().split("\n").filter(l => l.trim());
+    expect(lines[lines.length - 1]).toBe("export default DashboardLayout;");
   });
 
   it("transforms arrow function with inline type and default values", () => {

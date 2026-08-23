@@ -494,7 +494,6 @@ exports[`transformComponents > transforms exported function declaration with inl
 export function Do(props: DoProps) {
   
 }
-
 export default Do;"
 `;
 
