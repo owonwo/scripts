@@ -52,6 +52,20 @@ describe("transformComponents", () => {
     return fs.readFileSync(filePath, "utf-8");
   }
 
+  function expectResult(result: ReturnType<typeof transformComponents>) {
+    return {
+      toMatchSnapshot() {
+        const { duration, filePath, ...rest } = result;
+        expect(rest).toMatchSnapshot();
+        expect(typeof duration).toBe("number");
+        expect(duration).toBeLessThan(2000);
+        expect(typeof filePath).toBe("string");
+        expect(filePath.length).toBeGreaterThan(0);
+        return this;
+      },
+    };
+  }
+
   it("transforms arrow function with props to function declaration", () => {
     const input = `const Box = ({
   boxes,
@@ -71,7 +85,7 @@ describe("transformComponents", () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -84,7 +98,7 @@ describe("transformComponents", () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -98,7 +112,7 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -111,7 +125,7 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -126,7 +140,7 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     const importCount = (output.match(/import React from "react"/g) || []).length;
     expect(importCount).toMatchSnapshot();
   });
@@ -144,20 +158,20 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
   it("returns error for non-existent file", () => {
     const result = transformComponents("/non-existent/file.tsx");
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
   });
 
   it("returns error for non-tsx file", () => {
     const filePath = path.join(tmpDir, "test.ts");
     fs.writeFileSync(filePath, "const x = 1;");
     const result = transformComponents(filePath);
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
   });
 
   it("renames ...props to ...restProps to avoid naming conflict", () => {
@@ -179,7 +193,7 @@ const Box = () => {
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -204,7 +218,7 @@ function Avatar({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -221,7 +235,7 @@ function Avatar({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -244,7 +258,7 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -261,7 +275,7 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -278,7 +292,7 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -295,7 +309,7 @@ export default function Box({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -308,8 +322,20 @@ export default Do;`;
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+  });
+
+  it("preserves export default keyword on function declaration with inline type", () => {
+    const input = `export default function Widget({ label }: { label: string }) {
+  return <div>{label}</div>;
+}`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toContain("export default function Widget(props: WidgetProps");
   });
 
   it("transforms arrow function with inline type and default values", () => {
@@ -332,7 +358,7 @@ export default Do;`;
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -362,7 +388,7 @@ export function MediaThumb({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -381,7 +407,7 @@ export function MediaThumb({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
@@ -397,7 +423,7 @@ export function MediaThumb({
     const result = transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(result).toMatchSnapshot();
+    expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
   });
 
