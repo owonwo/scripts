@@ -208,7 +208,7 @@ export function transformComponents(filePath: string, project?: Project): Transf
 
       const componentName = func.getName()!;
       const destructuringPattern = firstParam.getName();
-      const isExported = func.isExported();
+      const isExported = func.getModifiers().some(m => m.getKind() === SyntaxKind.ExportKeyword);
       const isDefaultExport = func.getModifiers().some(m => m.getKind() === SyntaxKind.DefaultKeyword);
 
       const body = func.getBody();

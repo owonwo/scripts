@@ -16,6 +16,10 @@ Reference these persisted memories (via `bd remember`):
 - **sample-testing-always-use-force-flag**: ALWAYS use `--force` flag. No need for
   cache clearing.
 
+## Rules
+
+- **NEVER write to sample files directly.** The sample files are test fixtures. Run the CLI to transform them, then inspect the output. If the output is wrong, fix the implementation, not the sample.
+
 ## Verification Workflow
 
 ### 1. Build

@@ -502,6 +502,22 @@ export function C({
     expect(output).toMatchSnapshot();
   });
 
+  it("does not add export when function is exported via separate statement", () => {
+    const input = `function Badge({ className, variant, ...props }: BadgeProps) {
+  return <div className={className} {...props} />;
+}
+
+export { Badge };`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toContain("function Badge(");
+    expect(output).not.toMatch(/^export function Badge/m);
+    expect(output).toContain("export { Badge }");
+  });
+
   it("preserves destructuring order before body content", () => {
     const input = `function Foo({
   a,
