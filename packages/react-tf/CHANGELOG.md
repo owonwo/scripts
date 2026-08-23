@@ -1,5 +1,11 @@
 # @wigxel/react-tf
 
+## 0.1.6
+
+### Patch Changes
+
+- more transformation adjustments for comments, default exports and symbol ordering
+
 ## 0.1.5
 
 ### Patch Changes
