@@ -1,5 +1,11 @@
 # @wigxel/react-tf
 
+## 0.1.7
+
+### Patch Changes
+
+- Add effect packages as direct dependencies instead of peer dependencies
+
 ## 0.1.6
 
 ### Patch Changes
