@@ -289,6 +289,13 @@ export function transformComponents(filePath: string, project?: Project): Transf
       const propsTypeName = typeName || `${componentName}Props`;
       const lines: string[] = [];
 
+      // Type alias first
+      const exportPrefix = isExported ? "export " : "";
+      if (isInlineType) {
+        lines.push(`${exportPrefix}type ${propsTypeName} = ${typeText};`);
+      }
+
+      // JSDoc comments directly before the function
       if (jsDocs.length > 0) {
         lines.push("/**");
         for (const line of jsDocs) {
@@ -297,12 +304,6 @@ export function transformComponents(filePath: string, project?: Project): Transf
           }
         }
         lines.push(" */");
-      }
-
-      const exportPrefix = isExported ? "export " : "";
-      if (isInlineType) {
-        lines.push(`${exportPrefix}type ${propsTypeName} = ${typeText};`);
-        lines.push("");
       }
 
       let funcLine = "";

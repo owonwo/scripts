@@ -93,7 +93,6 @@ exports[`transformComponents > handles named export (non-default) function decla
 "export type BoxProps = {
   value: string
 };
-
 export function Box(props: BoxProps) {
   const {
   value
@@ -115,7 +114,6 @@ exports[`transformComponents > handles non-exported function declaration 2`] = `
 "type BoxProps = {
   value: string
 };
-
 function Box(props: BoxProps) {
   const {
   value
@@ -134,19 +132,18 @@ exports[`transformComponents > preserves JSDoc comment on function declaration w
 `;
 
 exports[`transformComponents > preserves JSDoc comment on function declaration with inline type 2`] = `
-"/**
- * Shared media renderer — handles photo / video / pdf / empty states.
- * Used by the landing feed card, the dashboard favourites card, and the
- * shared project modal so all three stay visually consistent.
- */
-export type MediaThumbProps = {
+"export type MediaThumbProps = {
   item: MediaItem | null;
   alt: string;
   className?: string;
   videoRef?: React.RefObject<HTMLVideoElement | null>;
   fill?: boolean;
 };
-
+/**
+ * Shared media renderer — handles photo / video / pdf / empty states.
+ * Used by the landing feed card, the dashboard favourites card, and the
+ * shared project modal so all three stay visually consistent.
+ */
 export function MediaThumb(props: MediaThumbProps) {
   const {
   item,
@@ -173,7 +170,6 @@ exports[`transformComponents > preserves async keyword on function declaration 2
   token: string;
   password: string;
 };
-
 export async function ResetPasswordHandler(props: ResetPasswordHandlerProps) {
   const {
   token,
@@ -190,7 +186,6 @@ exports[`transformComponents > preserves destructuring order before body content
   b: number;
   c: boolean;
 };
-
 function Foo(props: FooProps) {
   const {
   a,
@@ -224,7 +219,6 @@ exports[`transformComponents > preserves export default on function declaration 
 "export type BoxProps = {
   value: string
 };
-
 export default function Box(props: BoxProps) {
   const {
   value
@@ -264,7 +258,6 @@ exports[`transformComponents > preserves formatting across multiple function dec
 }type BProps = {
   value: string
 };
-
 function B(props: BProps) {
   const {
   value
@@ -274,7 +267,6 @@ function B(props: BProps) {
 }export type CProps = {
   x: number
 };
-
 export function C(props: CProps) {
   const {
   x
@@ -309,7 +301,6 @@ exports[`transformComponents > preserves type alias before function declaration 
 "type FooProps = {
   value: string
 };
-
 function Foo(props: FooProps) {
   const {
   value
@@ -490,7 +481,6 @@ exports[`transformComponents > transforms exported function declaration with inl
 
 exports[`transformComponents > transforms exported function declaration with inline type and separate default export 2`] = `
 "export type DoProps = { name: string };
-
 export function Do(props: DoProps) {
   
 }
@@ -511,7 +501,6 @@ exports[`transformComponents > transforms function declaration with inline type 
   mode: "expiring" | "expired" | "running";
   value: ReturnType<typeof formatElapsed>;
 };
-
 function TimerUI(props: TimerUIProps) {
   return null
 }"

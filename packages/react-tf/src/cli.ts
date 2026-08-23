@@ -86,6 +86,20 @@ parentPort.on("message", (message) => {
 
     let transformedCount = 0;
 
+    // Collect and remove separate \`export default X;\` statement
+    let defaultExportName = null;
+    const exportAssignments = sourceFile.getStatements()
+      .filter(s => s.isKind(SyntaxKind.ExportAssignment));
+    for (const ea of exportAssignments) {
+      defaultExportName = ea.asKindOrThrow(SyntaxKind.ExportAssignment).getExpression().getText();
+      ea.remove();
+    }
+
+    // Collect ALL transformations (arrow functions + function declarations) into one array
+    // before any string modification, so positions remain valid for all replacements.
+    const allTransformations = [];
+
+    // 1. Collect arrow function transformations
     for (const statement of variableStatements) {
       const variableStatement = statement.asKindOrThrow(SyntaxKind.VariableStatement);
       const declarationList = variableStatement.getDeclarationList();
@@ -111,14 +125,28 @@ parentPort.on("message", (message) => {
         const arrowFuncBody = arrowFunc.getBody();
         const bodyText = arrowFuncBody.getText();
         const bodyContent = bodyText.slice(1, -1).trim();
+        const isAsync = arrowFunc.isAsync();
 
-        let functionDeclaration;
+        const start = statement.getFullStart();
+        const end = statement.getEnd();
+        const isExported = variableStatement.isExported();
+        const isDefaultExport = variableStatement.isDefaultExport();
 
         if (parameters.length === 0) {
-          functionDeclaration = sourceFile.addFunction({
-            name: componentName,
-            isExported: variableStatement.isExported(),
-            isDefaultExport: variableStatement.isDefaultExport(),
+          allTransformations.push({
+            componentName,
+            typeText: "",
+            typeName: "",
+            destructuringPattern: "",
+            isExported,
+            isDefaultExport,
+            bodyContent,
+            isInlineType: false,
+            isAsync,
+            hasDestructuring: false,
+            jsDocs: [],
+            start,
+            end,
           });
         } else {
           const firstParam = parameters[0];
@@ -130,34 +158,26 @@ parentPort.on("message", (message) => {
           const destructuringPattern = firstParam.getName();
           const propsTypeName = componentName + "Props";
 
-          sourceFile.addTypeAlias({
-            name: propsTypeName,
-            type: typeLiteral.getText(),
-            isExported: variableStatement.isExported(),
+          allTransformations.push({
+            componentName,
+            typeText: typeLiteral.getText(),
+            typeName: propsTypeName,
+            destructuringPattern,
+            isExported,
+            isDefaultExport,
+            bodyContent,
+            isInlineType: true,
+            isAsync,
+            hasDestructuring: destructuringPattern !== "props",
+            jsDocs: [],
+            start,
+            end,
           });
-
-          functionDeclaration = sourceFile.addFunction({
-            name: componentName,
-            parameters: [
-              {
-                name: "props",
-                type: propsTypeName,
-              },
-            ],
-            isExported: variableStatement.isExported(),
-            isDefaultExport: variableStatement.isDefaultExport(),
-          });
-
-          functionDeclaration.setBodyText("\\n  const " + destructuringPattern + " = props;\\n\\n  " + bodyContent + "\\n");
         }
-
-        statement.remove();
-        transformedCount++;
       }
     }
 
-    const allFuncTransformations = [];
-
+    // 2. Collect function declaration transformations
     const functionDeclarations = sourceFile.getFunctions().filter(func => {
       const name = func.getName();
       return name && isReactComponent(name);
@@ -176,15 +196,21 @@ parentPort.on("message", (message) => {
       const destructuringPattern = firstParam.getName();
       const isExported = func.isExported();
       const isDefaultExport = func.isDefaultExport();
+      const isAsync = func.isAsync();
+
+      const jsDocs = func.getJsDocs().map(doc => doc.getCommentText() ?? "");
 
       const body = func.getBody();
       if (!body) continue;
       const bodyText = body.getText();
       const bodyContent = bodyText.slice(1, -1).trim();
 
+      const start = func.getFullStart();
+      const end = func.getEnd();
+
       if (typeNode.isKind(SyntaxKind.TypeLiteral)) {
         const typeLiteral = typeNode.asKindOrThrow(SyntaxKind.TypeLiteral);
-        allFuncTransformations.push({
+        allTransformations.push({
           componentName,
           typeText: typeLiteral.getText(),
           typeName: "",
@@ -193,6 +219,11 @@ parentPort.on("message", (message) => {
           isDefaultExport,
           bodyContent,
           isInlineType: true,
+          isAsync,
+          hasDestructuring: destructuringPattern !== "props",
+          jsDocs,
+          start,
+          end,
         });
       } else {
         if (firstParam.getNameNode().getKind() !== SyntaxKind.ObjectBindingPattern) continue;
@@ -207,7 +238,7 @@ parentPort.on("message", (message) => {
 
         if (!hasThreeOrMoreProps && !hasDefaultValues) continue;
 
-        allFuncTransformations.push({
+        allTransformations.push({
           componentName,
           typeText: "",
           typeName: typeNode.getText(),
@@ -216,63 +247,75 @@ parentPort.on("message", (message) => {
           isDefaultExport,
           bodyContent,
           isInlineType: false,
+          isAsync,
+          hasDestructuring: destructuringPattern !== "props",
+          jsDocs,
+          start,
+          end,
         });
       }
-
-      func.remove();
     }
 
-    for (const transformation of allFuncTransformations) {
-      const { componentName, typeText, typeName, destructuringPattern, isExported, isDefaultExport, bodyContent, isInlineType } = transformation;
+    // 3. Sort by position ascending, process bottom-to-top to preserve positions
+    allTransformations.sort((a, b) => a.start - b.start);
 
+    const srcText = sourceFile.getFullText();
+    let result = srcText;
+
+    for (let i = allTransformations.length - 1; i >= 0; i--) {
+      const t = allTransformations[i];
+      const { componentName, typeText, typeName, destructuringPattern, isExported, isDefaultExport, bodyContent, isInlineType, isAsync, hasDestructuring, jsDocs, start, end } = t;
+
+      const lines = [];
+      const propsTypeName = typeName || componentName + "Props";
+
+      // Type alias first
       if (isInlineType) {
-        const propsTypeName = componentName + "Props";
-        sourceFile.addTypeAlias({
-          name: propsTypeName,
-          type: typeText,
-          isExported,
-        });
+        lines.push("");
+        lines.push("export type " + propsTypeName + " = " + typeText + ";");
+      }
 
-        const newFunc = sourceFile.addFunction({
-          name: componentName,
-          parameters: [{
-            name: "props",
-            type: propsTypeName,
-          }],
-          isExported,
-          isDefaultExport,
-        });
-
-        if (destructuringPattern !== "props") {
-          // Fix rest element naming conflict: ...props -> ...restProps
-          const fixedPattern = destructuringPattern.replace(/\\.\\.\\.props\\b/g, "...restProps");
-          const fixedBodyContent = fixedPattern !== destructuringPattern
-            ? bodyContent.replace(/\\.\\.\\.props\\b/g, "...restProps")
-            : bodyContent;
-          newFunc.setBodyText("\\n  const " + fixedPattern + " = props;\\n\\n  " + fixedBodyContent + "\\n");
-        } else {
-          newFunc.setBodyText("\\n  " + bodyContent + "\\n");
+      // JSDoc comments directly before the function
+      if (jsDocs && jsDocs.length > 0) {
+        lines.push("/**");
+        for (const line of jsDocs) {
+          for (const l of line.split("\\n")) {
+            lines.push(" * " + l.trim());
+          }
         }
-      } else {
-        const newFunc = sourceFile.addFunction({
-          name: componentName,
-          parameters: [{
-            name: "props",
-            type: typeName,
-          }],
-          isExported,
-          isDefaultExport,
-        });
+        lines.push(" */");
+      }
 
-        // Fix rest element naming conflict: ...props -> ...restProps
+      let funcLine = "";
+      if (isExported) funcLine += "export ";
+      if (isDefaultExport) funcLine += "default ";
+      if (isAsync) funcLine += "async ";
+      funcLine += "function " + componentName + "(props: " + propsTypeName + ") {";
+      lines.push(funcLine);
+
+      if (hasDestructuring) {
         const fixedPattern = destructuringPattern.replace(/\\.\\.\\.props\\b/g, "...restProps");
         const fixedBodyContent = fixedPattern !== destructuringPattern
           ? bodyContent.replace(/\\.\\.\\.props\\b/g, "...restProps")
           : bodyContent;
-        newFunc.setBodyText("\\n  const " + fixedPattern + " = props;\\n\\n  " + fixedBodyContent + "\\n");
+        lines.push("  const " + fixedPattern + " = props;");
+        lines.push("");
+        lines.push("  " + fixedBodyContent);
+      } else {
+        lines.push("  " + bodyContent);
       }
 
+      lines.push("}");
+
+      result = result.slice(0, start) + lines.join("\\n") + result.slice(end);
       transformedCount++;
+    }
+
+    sourceFile.replaceWithText(result);
+
+    // Re-append separate export default statement at the end
+    if (defaultExportName) {
+      sourceFile.addStatements("\\nexport default " + defaultExportName + ";");
     }
 
     sourceFile.saveSync();
