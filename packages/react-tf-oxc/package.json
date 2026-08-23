@@ -1,0 +1,34 @@
+{
+  "name": "@wigxel/react-tf-oxc",
+  "version": "0.1.4",
+  "description": "Transform React function components from arrow functions to function declarations",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "bin": {
+    "nurm": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "demo": "rm -rf test-project && cp -r sample test-project && node dist/cli.js ./test-project --debug --force;"
+  },
+  "dependencies": {
+    "@wigxel/cli-core": "workspace:*",
+    "fast-fs-hash": "^0.0.3",
+    "ignore": "^7.0.6",
+    "oxc-parser": "^0.146.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
