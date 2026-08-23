@@ -521,4 +521,42 @@ export function C({
 
     expect(output).toMatchSnapshot();
   });
+
+  it("transforms async arrow function with children prop", () => {
+    const input = `import { BrandLogo } from "~/components/layouts/header";
+import { AuthUserAvatar } from "~/components/profile/auth-user-avatar";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Sidebar } from "./_components/sidebar";
+
+const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+  return (
+    "Hi"
+  );
+};
+
+export default DashboardLayout;`;
+
+    const filePath = writeTestFile(input);
+    transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toMatchInlineSnapshot(`
+      "import { BrandLogo } from "~/components/layouts/header";
+      import { AuthUserAvatar } from "~/components/profile/auth-user-avatar";
+      import { ScrollArea } from "~/components/ui/scroll-area";
+      import { Sidebar } from "./_components/sidebar";
+      type DashboardLayoutProps = { children: React.ReactNode };
+
+      async function DashboardLayout(props: DashboardLayoutProps) {
+
+            const { children } = props;
+
+            return (
+              "Hi"
+            );
+      }
+
+      export default DashboardLayout;"
+    `);
+  });
 });
