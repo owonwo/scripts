@@ -25,6 +25,7 @@ export interface Transformation {
   start: number;
   end: number;
   rawComment: string;
+  hasBlockBody: boolean;
 }
 
 export function collectTransformations(sourceFile: SourceFile): Transformation[] {
@@ -50,7 +51,9 @@ export function collectTransformations(sourceFile: SourceFile): Transformation[]
 
       const body = arrow.getBody();
       if (!body) continue;
-      const bodyContent = body.getText().slice(1, -1).trim();
+      const bodyText = body.getText();
+      const bodyContent = bodyText.slice(1, -1).trim();
+      const hasBlockBody = bodyText.startsWith("{");
 
       if (params.length === 0) {
         transformations.push({
@@ -68,6 +71,7 @@ export function collectTransformations(sourceFile: SourceFile): Transformation[]
           start: statement.getFullStart(),
           end: statement.getEnd(),
           rawComment: "",
+          hasBlockBody,
         });
       } else {
         const param = params[0];
@@ -95,6 +99,7 @@ export function collectTransformations(sourceFile: SourceFile): Transformation[]
           start: statement.getFullStart(),
           end: statement.getEnd(),
           rawComment: "",
+          hasBlockBody,
         });
       }
     }
@@ -144,6 +149,7 @@ export function collectTransformations(sourceFile: SourceFile): Transformation[]
         start,
         end,
         rawComment: "",
+        hasBlockBody: true,
       });
     } else {
       if (param.getNameNode().getKind() !== SyntaxKind.ObjectBindingPattern) continue;
@@ -170,6 +176,7 @@ export function collectTransformations(sourceFile: SourceFile): Transformation[]
         start,
         end,
         rawComment: "",
+        hasBlockBody: true,
       });
     }
   }
@@ -190,7 +197,7 @@ export function buildTransformedSource(
     const {
       componentName, typeText, typeName, destructuringPattern, hasDestructuring,
       isExported, isDefaultExport, bodyContent, isInlineType,
-      jsDocs, isAsync, start, end,
+      jsDocs, isAsync, start, end, hasBlockBody,
     } = t;
 
     const propsTypeName = typeName || `${componentName}Props`;
@@ -222,6 +229,8 @@ export function buildTransformedSource(
     }
     lines.push(funcLine);
 
+    const bodyPrefix = hasBlockBody ? "" : "return ";
+
     if (hasDestructuring) {
       const fixedPattern = destructuringPattern.replace(/\.\.\.props\b/g, "...restProps");
       const fixedBodyContent =
@@ -230,9 +239,9 @@ export function buildTransformedSource(
           : bodyContent;
       lines.push(`  const ${fixedPattern} = props;`);
       lines.push("");
-      lines.push(`  ${fixedBodyContent}`);
+      lines.push(`  ${bodyPrefix}${fixedBodyContent}`);
     } else {
-      lines.push(`  ${bodyContent}`);
+      lines.push(`  ${bodyPrefix}${bodyContent}`);
     }
 
     lines.push("}");

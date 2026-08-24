@@ -275,12 +275,12 @@ exports[`transformComponents > preserves order of multiple arrow functions 1`] =
 function Alpha(props: AlphaProps) {
   const { x } = props;
 
-  div>{x}</div
+  return div>{x}</div
 }type BetaProps = { y: string };
 function Beta(props: BetaProps) {
   const { y } = props;
 
-  div>{y}</div
+  return div>{y}</div
 }"
 `;
 
@@ -404,6 +404,38 @@ export function SegmentProgressBar(props: SegmentProgressBarProps) {
     className,
   } = props;
 }"
+`;
+
+exports[`transformComponents > transforms arrow function with inline type and parentheses body 1`] = `
+{
+  "componentsFound": 1,
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms arrow function with inline type and parentheses body 2`] = `
+"type WorkItemProps = {
+  position: string;
+  company: string;
+  timeline: string;
+};
+function WorkItem(props: WorkItemProps) {
+  const {
+  position,
+  company,
+  timeline,
+} = props;
+
+  return <div className="flex justify-between text-sm">
+    <div>
+      <p className="font-medium text-white">{position}</p>
+      <p className="text-white/60">{company}</p>
+    </div>
+    <p className="text-white/50">{timeline}</p>
+  </div>
+}
+export default WorkItem;"
 `;
 
 exports[`transformComponents > transforms arrow function with no props 1`] = `

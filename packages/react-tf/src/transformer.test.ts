@@ -382,6 +382,35 @@ export default DashboardLayout;`;
     expect(output).toMatchSnapshot();
   });
 
+  it("transforms arrow function with inline type and parentheses body", () => {
+    const input = `const WorkItem = ({
+  position,
+  company,
+  timeline,
+}: {
+  position: string;
+  company: string;
+  timeline: string;
+}) => (
+  <div className="flex justify-between text-sm">
+    <div>
+      <p className="font-medium text-white">{position}</p>
+      <p className="text-white/60">{company}</p>
+    </div>
+    <p className="text-white/50">{timeline}</p>
+  </div>
+);
+
+export default WorkItem;`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expectResult(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
   it("preserves JSDoc comment on function declaration with inline type", () => {
     const input = `/**
  * Shared media renderer — handles photo / video / pdf / empty states.
