@@ -38,7 +38,7 @@ function createWorkerPool(
 
     for (let i = 0; i < num; i++) {
       workersAlive++;
-      const worker = new Worker(WORKER_CODE, { eval: true });
+      const worker = new Worker(WORKER_CODE, { eval: true, type: "module" });
 
       worker.on("message", (result: unknown) => {
         results.push(result);

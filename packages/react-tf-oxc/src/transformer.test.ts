@@ -335,7 +335,7 @@ export default Do;`;
     await transformComponents(filePath);
     const output = readFile(filePath);
 
-    expect(output).toContain("export default function Widget(");
+    expect(output).toContain("export default function Widget(props: WidgetProps");
   });
 
   it("transforms arrow function with inline type and default values", async () => {
@@ -500,5 +500,60 @@ export function C({
     const output = readFile(filePath);
 
     expect(output).toMatchSnapshot();
+  });
+
+  it("preserves async and moves export default to end for arrow functions", async () => {
+    const input = `const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+  return null;
+};
+
+export default DashboardLayout;`;
+
+    const filePath = writeTestFile(input);
+    await transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toContain("async function DashboardLayout(");
+    const lines = output.trim().split("\n").filter(l => l.trim());
+    expect(lines[lines.length - 1]).toBe("export default DashboardLayout;");
+  });
+
+  it("transforms async arrow function with children prop", async () => {
+    const input = `import { BrandLogo } from "~/components/layouts/header";
+import { AuthUserAvatar } from "~/components/profile/auth-user-avatar";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Sidebar } from "./_components/sidebar";
+
+const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+  return (
+    "Hi"
+  );
+};
+
+export default DashboardLayout;`;
+
+    const filePath = writeTestFile(input);
+    await transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toMatchInlineSnapshot(`
+      "import { BrandLogo } from "~/components/layouts/header";
+      import { AuthUserAvatar } from "~/components/profile/auth-user-avatar";
+      import { ScrollArea } from "~/components/ui/scroll-area";
+      import { Sidebar } from "./_components/sidebar";
+
+      type DashboardLayoutProps = { children: React.ReactNode };
+
+      async function DashboardLayout(props: DashboardLayoutProps) {
+        const { children }: { children: React.ReactNode } = props;
+
+        return (
+          "Hi"
+        );
+      }
+
+
+      export default DashboardLayout;"
+    `);
   });
 });

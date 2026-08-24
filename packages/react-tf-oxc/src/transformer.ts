@@ -22,9 +22,7 @@ function isComplexType(typeAnnotation: any): boolean {
   if (!typeAnnotation) return false;
   const type = typeAnnotation.typeAnnotation;
   if (!type) return false;
-  // TypeReference (e.g. BoxProps) is a named type — not complex
   if (type.type === "TSTypeReference") return false;
-  // TSTypeLiteral, TSIntersectionType, TSUnionType, etc. are complex inline types
   return true;
 }
 
@@ -33,45 +31,6 @@ interface AstNode {
   start: number;
   end: number;
   [key: string]: any;
-}
-
-function findNodes(node: AstNode, type: string): AstNode[] {
-  const results: AstNode[] = [];
-  if (node.type === type) results.push(node);
-  for (const key of Object.keys(node)) {
-    if (key === "type" || key === "start" || key === "end") continue;
-    const child = node[key];
-    if (Array.isArray(child)) {
-      for (const item of child) {
-        if (item && typeof item === "object" && item.type) {
-          results.push(...findNodes(item, type));
-        }
-      }
-    } else if (child && typeof child === "object" && child.type) {
-      results.push(...findNodes(child, type));
-    }
-  }
-  return results;
-}
-
-function findFirstNode(node: AstNode, type: string): AstNode | null {
-  if (node.type === type) return node;
-  for (const key of Object.keys(node)) {
-    if (key === "type" || key === "start" || key === "end") continue;
-    const child = node[key];
-    if (Array.isArray(child)) {
-      for (const item of child) {
-        if (item && typeof item === "object" && item.type) {
-          const found = findFirstNode(item, type);
-          if (found) return found;
-        }
-      }
-    } else if (child && typeof child === "object" && child.type) {
-      const found = findFirstNode(child, type);
-      if (found) return found;
-    }
-  }
-  return null;
 }
 
 function getNodeText(node: AstNode, source: string): string {
@@ -90,6 +49,24 @@ function hasAsyncKeyword(node: AstNode): boolean {
   return node.async === true;
 }
 
+function getLeadingCommentStart(node: AstNode, source: string): number {
+  let pos = node.start;
+  while (pos > 0) {
+    const ch = source[pos - 1];
+    if (ch === "\n" || ch === "\r" || ch === " " || ch === "\t") {
+      pos--;
+      continue;
+    }
+    if (source.slice(pos - 2, pos) === "*/") {
+      pos -= 2;
+      while (pos > 0 && source.slice(pos - 2, pos) !== "/*") pos--;
+      return pos - 2;
+    }
+    break;
+  }
+  return node.start;
+}
+
 function getLeadingComments(node: AstNode, source: string): string[] {
   const comments: string[] = [];
   let pos = node.start;
@@ -103,8 +80,9 @@ function getLeadingComments(node: AstNode, source: string): string[] {
       const end = pos;
       pos -= 2;
       while (pos > 0 && source.slice(pos - 2, pos) !== "/*") pos--;
-      comments.unshift(source.slice(pos, end).trim());
-      pos--;
+      const start = pos - 2;
+      comments.unshift(source.slice(start, end).trim());
+      pos = start;
       continue;
     }
     break;
@@ -112,9 +90,9 @@ function getLeadingComments(node: AstNode, source: string): string[] {
   return comments;
 }
 
-function getDestructuringPatternText(param: AstNode, source: string): string {
+function getDestructuringPatternName(param: AstNode, source: string): string {
   if (param.type === "Identifier") {
-    return source.slice(param.start, param.end);
+    return param.name || source.slice(param.start, param.end);
   }
   if (param.type === "ObjectPattern") {
     return source.slice(param.start, param.end);
@@ -173,25 +151,33 @@ export async function transformComponents(filePath: string): Promise<TransformRe
     let transformedCount = 0;
     const statements = program.body || [];
 
+    // Collect and remove separate `export default X;` statement
+    let defaultExportName: string | null = null;
+    const exportAssignments = statements.filter(
+      (s) => s.type === "ExportDefaultDeclaration" && s.declaration?.type === "Identifier",
+    );
+    for (const ea of exportAssignments) {
+      defaultExportName = ea.declaration.name;
+    }
+
+
     // Collect all transformations
     const allTransformations: Array<{
       componentName: string;
       typeText: string;
       typeName: string;
       destructuringPattern: string;
+      hasDestructuring: boolean;
       isExported: boolean;
       isDefaultExport: boolean;
       bodyContent: string;
       isInlineType: boolean;
       jsDocs: string[];
       isAsync: boolean;
+      hasBlockBody: boolean;
       start: number;
       end: number;
-      isArrow: boolean;
-      arrowBody?: string;
-      arrowParams?: AstNode[];
-      parentStart?: number;
-      parentEnd?: number;
+      rawComment: string;
     }> = [];
 
     for (const stmt of statements) {
@@ -211,28 +197,33 @@ export async function transformComponents(filePath: string): Promise<TransformRe
           const body = arrowFunc.body;
           if (!body) continue;
           const bodyText = getNodeText(body, content);
-          const bodyContent = bodyText.slice(1, -1).trim();
+          const hasBlockBody = body.type === "BlockStatement";
+          const bodyContent = hasBlockBody
+            ? bodyText.slice(1, -1).trim()
+            : bodyText.trim();
 
           const parentIsExport = isExported(stmt);
           const parentIsDefault = isDefaultExport(stmt);
+          const isAsync = hasAsyncKeyword(arrowFunc);
 
           if (params.length === 0) {
+            // No-props arrow: just convert syntax, no const line needed
             allTransformations.push({
               componentName,
               typeText: "",
               typeName: "",
-              destructuringPattern: "props",
+              destructuringPattern: "",
+              hasDestructuring: false,
               isExported: parentIsExport,
               isDefaultExport: parentIsDefault,
               bodyContent,
               isInlineType: false,
               jsDocs: [],
-              isAsync: false,
+              isAsync,
+              hasBlockBody,
               start: stmt.start,
               end: stmt.end,
-              isArrow: true,
-              arrowBody: bodyText,
-              arrowParams: params,
+              rawComment: "",
             });
           } else {
             const firstParam = params[0];
@@ -241,32 +232,32 @@ export async function transformComponents(filePath: string): Promise<TransformRe
 
             const isComplex = isComplexType(typeAnnotation);
             if (!isComplex) {
-              // Named type reference — check if it has 3+ props or defaults
               if (!hasObjectBindingPattern(firstParam)) continue;
               const props = getObjectPatternProperties(firstParam);
               if (props.length < 3 && !hasDefaultValues(firstParam)) continue;
             }
 
-            const destructuringPattern = getDestructuringPatternText(firstParam, content);
+            const destructuringPattern = getDestructuringPatternName(firstParam, content);
             const typeText = typeAnnotation ? getNodeText(typeAnnotation.typeAnnotation, content) : "";
             const propsTypeName = `${componentName}Props`;
+            const hasDestructuring = destructuringPattern !== "props";
 
             allTransformations.push({
               componentName,
               typeText,
               typeName: propsTypeName,
               destructuringPattern,
+              hasDestructuring,
               isExported: parentIsExport,
               isDefaultExport: parentIsDefault,
               bodyContent,
               isInlineType: isComplex,
               jsDocs: [],
-              isAsync: false,
+              isAsync,
+              hasBlockBody,
               start: stmt.start,
               end: stmt.end,
-              isArrow: true,
-              arrowBody: bodyText,
-              arrowParams: params,
+              rawComment: "",
             });
           }
         }
@@ -288,25 +279,29 @@ export async function transformComponents(filePath: string): Promise<TransformRe
           const body = arrowFunc.body;
           if (!body) continue;
           const bodyText = getNodeText(body, content);
-          const bodyContent = bodyText.slice(1, -1).trim();
+          const hasBlockBody = body.type === "BlockStatement";
+          const bodyContent = hasBlockBody
+            ? bodyText.slice(1, -1).trim()
+            : bodyText.trim();
+          const isAsync = hasAsyncKeyword(arrowFunc);
 
           if (params.length === 0) {
             allTransformations.push({
               componentName,
               typeText: "",
               typeName: "",
-              destructuringPattern: "props",
+              destructuringPattern: "",
+              hasDestructuring: false,
               isExported: true,
               isDefaultExport: false,
               bodyContent,
               isInlineType: false,
               jsDocs: [],
-              isAsync: false,
+              isAsync,
+              hasBlockBody,
               start: stmt.start,
               end: stmt.end,
-              isArrow: true,
-              arrowBody: bodyText,
-              arrowParams: params,
+              rawComment: "",
             });
           } else {
             const firstParam = params[0];
@@ -320,26 +315,27 @@ export async function transformComponents(filePath: string): Promise<TransformRe
               if (props.length < 3 && !hasDefaultValues(firstParam)) continue;
             }
 
-            const destructuringPattern = getDestructuringPatternText(firstParam, content);
+            const destructuringPattern = getDestructuringPatternName(firstParam, content);
             const typeText = typeAnnotation ? getNodeText(typeAnnotation.typeAnnotation, content) : "";
             const propsTypeName = `${componentName}Props`;
+            const hasDestructuring = destructuringPattern !== "props";
 
             allTransformations.push({
               componentName,
               typeText,
               typeName: propsTypeName,
               destructuringPattern,
+              hasDestructuring,
               isExported: true,
               isDefaultExport: false,
               bodyContent,
               isInlineType: isComplex,
               jsDocs: [],
-              isAsync: false,
+              isAsync,
+              hasBlockBody,
               start: stmt.start,
               end: stmt.end,
-              isArrow: true,
-              arrowBody: bodyText,
-              arrowParams: params,
+              rawComment: "",
             });
           }
         }
@@ -366,9 +362,10 @@ export async function transformComponents(filePath: string): Promise<TransformRe
           if (props.length < 3 && !hasDefaultValues(firstParam)) continue;
         }
 
-        const destructuringPattern = getDestructuringPatternText(firstParam, content);
+        const destructuringPattern = getDestructuringPatternName(firstParam, content);
         const typeText = typeAnnotation ? getNodeText(typeAnnotation.typeAnnotation, content) : "";
         const propsTypeName = `${componentName}Props`;
+        const hasDestructuring = destructuringPattern !== "props";
 
         const body = func.body;
         if (!body) continue;
@@ -377,21 +374,25 @@ export async function transformComponents(filePath: string): Promise<TransformRe
 
         const jsDocs = getLeadingComments(stmt, content);
         const isAsync = hasAsyncKeyword(func);
+        const commentStart = getLeadingCommentStart(stmt, content);
+        const rawComment = content.slice(commentStart, stmt.start);
 
         allTransformations.push({
           componentName,
           typeText,
           typeName: propsTypeName,
           destructuringPattern,
+          hasDestructuring,
           isExported: true,
           isDefaultExport: true,
           bodyContent,
           isInlineType: isComplex,
           jsDocs,
           isAsync,
-          start: stmt.start,
+          hasBlockBody: true,
+          start: commentStart,
           end: stmt.end,
-          isArrow: false,
+          rawComment,
         });
       }
 
@@ -416,9 +417,10 @@ export async function transformComponents(filePath: string): Promise<TransformRe
           if (props.length < 3 && !hasDefaultValues(firstParam)) continue;
         }
 
-        const destructuringPattern = getDestructuringPatternText(firstParam, content);
+        const destructuringPattern = getDestructuringPatternName(firstParam, content);
         const typeText = typeAnnotation ? getNodeText(typeAnnotation.typeAnnotation, content) : "";
         const propsTypeName = `${componentName}Props`;
+        const hasDestructuring = destructuringPattern !== "props";
 
         const body = func.body;
         if (!body) continue;
@@ -427,21 +429,25 @@ export async function transformComponents(filePath: string): Promise<TransformRe
 
         const jsDocs = getLeadingComments(stmt, content);
         const isAsync = hasAsyncKeyword(func);
+        const commentStart = getLeadingCommentStart(stmt, content);
+        const rawComment = content.slice(commentStart, stmt.start);
 
         allTransformations.push({
           componentName,
           typeText,
           typeName: propsTypeName,
           destructuringPattern,
+          hasDestructuring,
           isExported: true,
           isDefaultExport: false,
           bodyContent,
           isInlineType: isComplex,
           jsDocs,
           isAsync,
-          start: stmt.start,
+          hasBlockBody: true,
+          start: commentStart,
           end: stmt.end,
-          isArrow: false,
+          rawComment,
         });
       }
 
@@ -465,9 +471,10 @@ export async function transformComponents(filePath: string): Promise<TransformRe
           if (props.length < 3 && !hasDefaultValues(firstParam)) continue;
         }
 
-        const destructuringPattern = getDestructuringPatternText(firstParam, content);
+        const destructuringPattern = getDestructuringPatternName(firstParam, content);
         const typeText = typeAnnotation ? getNodeText(typeAnnotation.typeAnnotation, content) : "";
         const propsTypeName = `${componentName}Props`;
+        const hasDestructuring = destructuringPattern !== "props";
 
         const body = stmt.body;
         if (!body) continue;
@@ -476,21 +483,25 @@ export async function transformComponents(filePath: string): Promise<TransformRe
 
         const jsDocs = getLeadingComments(stmt, content);
         const isAsync = hasAsyncKeyword(stmt);
+        const commentStart = getLeadingCommentStart(stmt, content);
+        const rawComment = content.slice(commentStart, stmt.start);
 
         allTransformations.push({
           componentName,
           typeText,
           typeName: propsTypeName,
           destructuringPattern,
+          hasDestructuring,
           isExported: false,
           isDefaultExport: false,
           bodyContent,
           isInlineType: isComplex,
           jsDocs,
           isAsync,
-          start: stmt.start,
+          hasBlockBody: true,
+          start: commentStart,
           end: stmt.end,
-          isArrow: false,
+          rawComment,
         });
       }
     }
@@ -504,38 +515,42 @@ export async function transformComponents(filePath: string): Promise<TransformRe
     for (let i = allTransformations.length - 1; i >= 0; i--) {
       const t = allTransformations[i];
       const {
-        componentName, typeText, typeName, destructuringPattern,
+        componentName, typeText, typeName, destructuringPattern, hasDestructuring,
         isExported: tIsExported, isDefaultExport: tIsDefaultExport, bodyContent, isInlineType,
-        jsDocs, isAsync, start: tStart, end: tEnd,
+        jsDocs, isAsync, hasBlockBody, start: tStart, end: tEnd, rawComment,
       } = t;
 
       const propsTypeName = typeName || `${componentName}Props`;
       const lines: string[] = [];
 
-      if (jsDocs.length > 0) {
-        lines.push("/**");
-        for (const line of jsDocs) {
-          for (const l of line.split("\n")) {
-            lines.push(` * ${l.trim()}`);
-          }
-        }
-        lines.push(" */");
+      // Re-emit original comment if present
+      if (rawComment) {
+        lines.push(rawComment.trimEnd());
+        lines.push("");
       }
 
+      // Type alias first
       const exportPrefix = tIsExported ? "export " : "";
       if (isInlineType) {
         lines.push(`${exportPrefix}type ${propsTypeName} = ${typeText};`);
         lines.push("");
       }
 
+      // Function signature — no-props gets empty params
       let funcLine = "";
       if (tIsExported) funcLine += "export ";
       if (tIsDefaultExport) funcLine += "default ";
       if (isAsync) funcLine += "async ";
-      funcLine += `function ${componentName}(props: ${propsTypeName}) {`;
+      if (hasDestructuring || typeName) {
+        funcLine += `function ${componentName}(props: ${propsTypeName}) {`;
+      } else {
+        funcLine += `function ${componentName}() {`;
+      }
       lines.push(funcLine);
 
-      if (destructuringPattern !== "props") {
+      const bodyPrefix = hasBlockBody ? "" : "return ";
+
+      if (hasDestructuring) {
         const fixedPattern = destructuringPattern.replace(/\.\.\.props\b/g, "...restProps");
         const fixedBodyContent =
           fixedPattern !== destructuringPattern
@@ -543,9 +558,9 @@ export async function transformComponents(filePath: string): Promise<TransformRe
             : bodyContent;
         lines.push(`  const ${fixedPattern} = props;`);
         lines.push("");
-        lines.push(`  ${fixedBodyContent}`);
+        lines.push(`  ${bodyPrefix}${fixedBodyContent}`);
       } else {
-        lines.push(`  ${bodyContent}`);
+        lines.push(`  ${bodyPrefix}${bodyContent}`);
       }
 
       lines.push("}");
@@ -554,6 +569,22 @@ export async function transformComponents(filePath: string): Promise<TransformRe
       result = result.slice(0, tStart) + lines.join("\n") + result.slice(tEnd);
 
       transformedCount++;
+    }
+
+    // Remove standalone `export default X;` statements from the modified result
+    // (can't use AST positions since the main transformation changed string offsets)
+    if (defaultExportName) {
+      const marker = `export default ${defaultExportName};`;
+      let idx = result.indexOf(marker);
+      while (idx !== -1) {
+        result = result.slice(0, idx) + result.slice(idx + marker.length);
+        idx = result.indexOf(marker);
+      }
+    }
+
+    // Re-append separate export default statement at the end
+    if (defaultExportName) {
+      result += `\nexport default ${defaultExportName};`;
     }
 
     fs.writeFileSync(filePath, result, "utf-8");

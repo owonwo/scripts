@@ -2,6 +2,8 @@ import { FileHashCache } from "fast-fs-hash";
 import * as path from "node:path";
 import * as fs from "node:fs";
 
+declare const __VERSION__: string;
+
 const CACHE_DIR = "node_modules/.cache/react-component-transformer";
 const CACHE_FILE = "transformer-cache.fsh";
 const CACHE_VERSION = 1;
@@ -98,7 +100,7 @@ function getCache(targetDir: string): FileHashCache {
     globalCache = new FileHashCache({
       cachePath: path.join(cacheDir, CACHE_FILE),
       rootPath: projectRoot,
-      version: CACHE_VERSION,
+      version: `${CACHE_VERSION}-${__VERSION__}`,
     });
   }
   return globalCache;

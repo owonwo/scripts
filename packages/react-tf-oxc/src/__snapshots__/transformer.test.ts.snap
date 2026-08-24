@@ -31,7 +31,7 @@ exports[`transformComponents > adds React import if missing 1`] = `
 `;
 
 exports[`transformComponents > adds React import if missing 2`] = `
-"function Box(props: BoxProps) {
+"function Box() {
   return <div>Hello</div>;
 }"
 `;
@@ -51,11 +51,6 @@ exports[`transformComponents > does not produce const props = props when destruc
 };
 
 function Foo(props: FooProps) {
-  const props: {
-  x: number;
-  y: string;
-} = props;
-
   return <div>{props.x} {props.y}</div>;
 }"
 `;
@@ -146,13 +141,7 @@ exports[`transformComponents > preserves JSDoc comment on function declaration w
  * Used by the landing feed card, the dashboard favourites card, and the
  * shared project modal so all three stay visually consistent.
  */
-/**
- * *
- * * Shared media renderer — handles photo / video / pdf / empty states.
- * * Used by the landing feed card, the dashboard favourites card, and the
- * * shared project modal so all three stay visually consistent.
- * */
- */
+
 export type MediaThumbProps = {
   item: MediaItem | null;
   alt: string;
@@ -329,14 +318,14 @@ exports[`transformComponents > preserves order of multiple arrow functions 1`] =
 function Alpha(props: AlphaProps) {
   const { x }: { x: number } = props;
 
-  div>{x}</div
+  return <div>{x}</div>
 }
 type BetaProps = { y: string };
 
 function Beta(props: BetaProps) {
   const { y }: { y: string } = props;
 
-  div>{y}</div
+  return <div>{y}</div>
 }"
 `;
 
@@ -443,7 +432,7 @@ exports[`transformComponents > skips lowercase variables 1`] = `
 
 exports[`transformComponents > skips lowercase variables 2`] = `
 "const notAComponent = "just a string";
-function Box(props: BoxProps) {
+function Box() {
   return <div>Hello</div>;
 }"
 `;
@@ -464,12 +453,6 @@ exports[`transformComponents > transforms arrow function with inline type and de
 };
 
 export function SegmentProgressBar(props: SegmentProgressBarProps) {
-  const props: {
-  className?: string;
-  progressValue?: number;
-  gradient?: { startColor: string; endColor: string };
-} = props;
-
   const {
     gradient = {
       startColor: "#ef4444",
@@ -490,7 +473,7 @@ exports[`transformComponents > transforms arrow function with no props 1`] = `
 `;
 
 exports[`transformComponents > transforms arrow function with no props 2`] = `
-"function SimpleComponent(props: SimpleComponentProps) {
+"function SimpleComponent() {
   return <div>Hello World</div>
 }"
 `;
@@ -538,10 +521,9 @@ exports[`transformComponents > transforms exported function declaration with inl
 "export type DoProps = { name: string };
 
 export function Do(props: DoProps) {
-  const props: { name: string } = props;
-
   
 }
+
 
 export default Do;"
 `;
@@ -562,12 +544,6 @@ exports[`transformComponents > transforms function declaration with inline type 
 };
 
 function TimerUI(props: TimerUIProps) {
-  const props: {
-  className?: string;
-  mode: "expiring" | "expired" | "running";
-  value: ReturnType<typeof formatElapsed>;
-} = props;
-
   return null
 }"
 `;

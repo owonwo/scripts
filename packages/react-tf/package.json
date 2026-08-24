@@ -33,6 +33,9 @@
     "esbuild": "^0.28.2",
     "vitest": "^4.1.10"
   },
+  "peerDependencies": {
+    "effect": "^3.22.x"
+  },
   "engines": {
     "node": ">=22"
   }

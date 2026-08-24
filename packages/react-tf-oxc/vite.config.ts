@@ -1,17 +1,31 @@
 import { readFileSync } from "node:fs";
 import { defineConfig } from "vite-plus";
+import { buildSync } from "esbuild";
 
 const { version } = JSON.parse(readFileSync("./package.json", "utf-8"));
+
+const workerCode = buildSync({
+  entryPoints: ["src/worker.ts"],
+  bundle: true,
+  format: "esm",
+  platform: "node",
+  external: ["oxc-parser"],
+  write: false,
+}).outputFiles[0].text;
 
 export default defineConfig({
   define: {
     __VERSION__: JSON.stringify(version),
+    __WORKER_CODE__: JSON.stringify(workerCode),
   },
   build: {
     lib: {
-      entry: "src/cli.ts",
+      entry: {
+        cli: "src/cli.ts",
+        transformer: "src/transformer.ts",
+      },
       formats: ["es"],
-      fileName: "cli",
+      fileName: (format, entryName) => `${entryName}.js`,
     },
     outDir: "dist",
     target: "node22",
