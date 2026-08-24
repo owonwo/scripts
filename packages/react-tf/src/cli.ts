@@ -2,7 +2,6 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { Args, Command, Options } from "@effect/cli";
 import { FileSystem } from "@effect/platform";
@@ -13,112 +12,7 @@ import { loadAndFilterFiles, saveCacheResults } from "./cache.js";
 import { createGitignoreFilter } from "./gitignore.js";
 import type { TransformResult } from "./transformer.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-declare const __VERSION__: string;
-
-// Worker code: loads transform-core.js at runtime to avoid duplicating logic
-export const WORKER_CODE = `
-const { parentPort, workerData } = require("node:worker_threads");
-const fs = require("node:fs");
-const path = require("node:path");
-
-if (!parentPort) {
-  throw new Error("Worker must be run in a worker_threads context");
-}
-
-// Load shared transformation logic from transform-core.js
-const corePath = workerData.corePath;
-const coreCode = fs.readFileSync(corePath, "utf-8");
-const mod = { exports: {} };
-const fn = new Function("exports", "require", "module", "__filename", "__dirname", coreCode);
-fn(mod.exports, require, mod, corePath, path.dirname(corePath));
-const { collectTransformations, buildTransformedSource } = mod.exports;
-
-// Lazy-init ts-morph Project
-let project = null;
-function getProject() {
-  if (!project) {
-    const { Project } = require("ts-morph");
-    project = new Project({ tsConfigFilePath: "tsconfig.json" });
-  }
-  return project;
-}
-
-parentPort.on("message", (message) => {
-  if (message.done) {
-    process.exit(0);
-  }
-
-  const { filePath } = message;
-  const start = performance.now();
-
-  if (path.extname(filePath).toLowerCase() !== ".tsx") {
-    parentPort.postMessage({ filePath, success: false, message: "Not a TSX file", componentsFound: 0, duration: 0 });
-    return;
-  }
-
-  if (!fs.existsSync(filePath)) {
-    parentPort.postMessage({ filePath, success: false, message: "File not found", componentsFound: 0, duration: 0 });
-    return;
-  }
-
-  const content = fs.readFileSync(filePath, "utf-8");
-  const hasPotentialComponents = /(?:export\\s+)?(?:const|let|var)\\s+[A-Z]/.test(content) ||
-    /(?:export\\s+)?function\\s+[A-Z]/.test(content);
-
-  if (!hasPotentialComponents) {
-    const duration = performance.now() - start;
-    parentPort.postMessage({ filePath, success: true, message: "No components to transform", componentsFound: 0, duration });
-    return;
-  }
-
-  try {
-    const proj = getProject();
-    const sourceFile = proj.addSourceFileAtPath(filePath);
-
-    const { SyntaxKind } = require("ts-morph");
-
-    // Remove separate export default statements
-    let defaultExportName = null;
-    const exportAssignments = sourceFile.getStatements()
-      .filter(s => s.isKind(SyntaxKind.ExportAssignment));
-    for (const ea of exportAssignments) {
-      defaultExportName = ea.asKindOrThrow(SyntaxKind.ExportAssignment).getExpression().getText();
-      ea.remove();
-    }
-
-    const transformations = collectTransformations(sourceFile);
-    let result = buildTransformedSource(sourceFile.getFullText(), transformations);
-
-    if (defaultExportName) {
-      result += "\\nexport default " + defaultExportName + ";";
-    }
-
-    sourceFile.replaceWithText(result);
-    sourceFile.saveSync();
-
-    const duration = performance.now() - start;
-    parentPort.postMessage({
-      filePath,
-      success: true,
-      message: transformations.length > 0 ? "Transformed " + transformations.length + " components" : "No components to transform",
-      componentsFound: transformations.length,
-      duration,
-    });
-  } catch (error) {
-    const duration = performance.now() - start;
-    parentPort.postMessage({
-      filePath,
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error",
-      componentsFound: 0,
-      duration,
-    });
-  }
-});
-`;
+export const WORKER_CODE = __WORKER_CODE__;
 
 const paths = Args.path({ name: "path" }).pipe(
   Args.repeated,
@@ -249,10 +143,7 @@ const command = Command.make(
 
             for (let i = 0; i < numWorkers; i++) {
               workersAlive++;
-              const worker = new Worker(WORKER_CODE, {
-                eval: true,
-                workerData: { corePath: path.join(__dirname, "transform-core.js") },
-              });
+              const worker = new Worker(WORKER_CODE, { eval: true, type: "module" });
 
               worker.on("message", (result: unknown) => {
                 const r = result as TransformResult;

@@ -1,10 +1,14 @@
-import { FileHashCache } from "fast-fs-hash";
-import * as path from "node:path";
 import * as fs from "node:fs";
+import * as path from "node:path";
+import { FileHashCache } from "fast-fs-hash";
 
 const CACHE_DIR = "node_modules/.cache/react-component-transformer";
 const CACHE_FILE = "transformer-cache.fsh";
-const CACHE_VERSION = 1;
+const CACHE_VERSION = Number(__VERSION__.split(/\D/).join(""));
+
+if (Number.isNaN(CACHE_VERSION)) {
+  console.warn("Invalid cache version");
+}
 
 export interface CacheEntry {
   hash: string;
@@ -98,7 +102,7 @@ function getCache(targetDir: string): FileHashCache {
     globalCache = new FileHashCache({
       cachePath: path.join(cacheDir, CACHE_FILE),
       rootPath: projectRoot,
-      version: CACHE_VERSION,
+      version: CACHE_VERSION
     });
   }
   return globalCache;
