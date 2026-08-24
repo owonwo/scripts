@@ -3,8 +3,7 @@ interface ButtonProps {
   variant?: "primary" | "secondary";
 }
 
-export function Button(props: ButtonProps) {
-  const { label, variant = "primary" } = props;
+export function Button({ label, variant = "primary" }: ButtonProps) {
 
   return <button className={`btn-${variant}`}>{label}</button>;
 }

@@ -1,8 +1,7 @@
 export default Button;
 
-type ButtonProps = { label: string };
 
-function Button(props: ButtonProps) {
+function Button(props: { label: string }) {
   const { label } = props;
 
   return <button>{label}</button>;

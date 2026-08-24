@@ -1,3 +1,3 @@
 export default Card;
 
-function Card() {}
+function Card() { }

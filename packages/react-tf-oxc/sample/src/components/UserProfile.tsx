@@ -1,13 +1,9 @@
 export default UserProfile;
 
-type UserProfileProps = {
+function UserProfile({ name, email }: {
   name: string;
   email: string;
-};
-
-function UserProfile(props: UserProfileProps) {
-  const { name, email } = props;
-
+}) {
   return (
     <div>
       <h1>{name}</h1>

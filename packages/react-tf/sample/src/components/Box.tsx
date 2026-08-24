@@ -1,11 +1,9 @@
 export default Box;
 
-type BoxProps = {
+function Box(props: {
   boxes: number;
   count: string;
-};
-
-function Box(props: BoxProps) {
+}) {
   const { boxes, count } = props;
 
   return (

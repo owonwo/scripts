@@ -4,9 +4,7 @@ interface FeatureCardProps {
   icon: string;
 }
 
-export function FeatureCard(props: FeatureCardProps) {
-  const { title, description, icon } = props;
-
+export function FeatureCard({ title, description, icon }: FeatureCardProps) {
   return (
     <div>
       <h3>{title}</h3>

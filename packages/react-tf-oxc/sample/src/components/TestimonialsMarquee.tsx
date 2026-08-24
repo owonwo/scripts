@@ -3,8 +3,7 @@ type TestimonialsMarqueeProps = {
   speed?: number;
 };
 
-export function TestimonialsMarquee(props: TestimonialsMarqueeProps) {
-  const { direction = "left", speed = 30 } = props;
+export function TestimonialsMarquee({ direction = "left", speed = 30 }: TestimonialsMarqueeProps) {
 
   return (
     <div>

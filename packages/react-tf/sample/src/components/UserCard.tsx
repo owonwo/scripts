@@ -1,6 +1,5 @@
-export type UserCardProps = { name: string; email: string };
 
-export function UserCard(props: UserCardProps) {
+export function UserCard(props: { name: string; email: string }) {
   return (
     <div>
       <h2>{props.name}</h2>
