@@ -1,5 +1,11 @@
 # @wigxel/react-tf
 
+## 0.1.9
+
+### Patch Changes
+
+- fixed some more formatting issues with arrow function
+
 ## 0.1.7
 
 ### Patch Changes
