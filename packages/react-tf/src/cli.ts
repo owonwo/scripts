@@ -18,10 +18,9 @@ const __dirname = path.dirname(__filename);
 
 declare const __VERSION__: string;
 
-// Inline worker code for self-contained binary
-// Uses lazy-init for ts-morph Project to defer expensive startup cost
+// Worker code: loads transform-core.js at runtime to avoid duplicating logic
 export const WORKER_CODE = `
-const { parentPort } = require("node:worker_threads");
+const { parentPort, workerData } = require("node:worker_threads");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -29,7 +28,15 @@ if (!parentPort) {
   throw new Error("Worker must be run in a worker_threads context");
 }
 
-// Lazy-init ts-morph Project — only create when a file actually needs transformation
+// Load shared transformation logic from transform-core.js
+const corePath = workerData.corePath;
+const coreCode = fs.readFileSync(corePath, "utf-8");
+const mod = { exports: {} };
+const fn = new Function("exports", "require", "module", "__filename", "__dirname", coreCode);
+fn(mod.exports, require, mod, corePath, path.dirname(corePath));
+const { collectTransformations, buildTransformedSource } = mod.exports;
+
+// Lazy-init ts-morph Project
 let project = null;
 function getProject() {
   if (!project) {
@@ -37,14 +44,6 @@ function getProject() {
     project = new Project({ tsConfigFilePath: "tsconfig.json" });
   }
   return project;
-}
-
-function isReactComponent(name) {
-  return /^[A-Z]/.test(name);
-}
-
-function isTsxFile(filePath) {
-  return path.extname(filePath).toLowerCase() === ".tsx";
 }
 
 parentPort.on("message", (message) => {
@@ -55,7 +54,7 @@ parentPort.on("message", (message) => {
   const { filePath } = message;
   const start = performance.now();
 
-  if (!isTsxFile(filePath)) {
+  if (path.extname(filePath).toLowerCase() !== ".tsx") {
     parentPort.postMessage({ filePath, success: false, message: "Not a TSX file", componentsFound: 0, duration: 0 });
     return;
   }
@@ -77,16 +76,11 @@ parentPort.on("message", (message) => {
 
   try {
     const proj = getProject();
-    const { SyntaxKind } = require("ts-morph");
     const sourceFile = proj.addSourceFileAtPath(filePath);
 
-    const variableStatements = sourceFile.getStatements().filter(statement => {
-      return statement.isKind(SyntaxKind.VariableStatement);
-    });
+    const { SyntaxKind } = require("ts-morph");
 
-    let transformedCount = 0;
-
-    // Collect and remove separate \`export default X;\` statement
+    // Remove separate export default statements
     let defaultExportName = null;
     const exportAssignments = sourceFile.getStatements()
       .filter(s => s.isKind(SyntaxKind.ExportAssignment));
@@ -95,237 +89,22 @@ parentPort.on("message", (message) => {
       ea.remove();
     }
 
-    // Collect ALL transformations (arrow functions + function declarations) into one array
-    // before any string modification, so positions remain valid for all replacements.
-    const allTransformations = [];
+    const transformations = collectTransformations(sourceFile);
+    let result = buildTransformedSource(sourceFile.getFullText(), transformations);
 
-    // 1. Collect arrow function transformations
-    for (const statement of variableStatements) {
-      const variableStatement = statement.asKindOrThrow(SyntaxKind.VariableStatement);
-      const declarationList = variableStatement.getDeclarationList();
-      const declarations = declarationList.getDeclarations();
-
-      for (const declaration of declarations) {
-        const componentName = declaration.getName();
-
-        if (!isReactComponent(componentName)) {
-          continue;
-        }
-
-        const initializer = declaration.getInitializer();
-        if (!initializer) continue;
-
-        if (!initializer.isKind(SyntaxKind.ArrowFunction)) continue;
-
-        const arrowFunc = initializer.asKindOrThrow(SyntaxKind.ArrowFunction);
-        const parameters = arrowFunc.getParameters();
-
-        if (parameters.length > 1) continue;
-
-        const arrowFuncBody = arrowFunc.getBody();
-        const bodyText = arrowFuncBody.getText();
-        const bodyContent = bodyText.slice(1, -1).trim();
-        const isAsync = arrowFunc.isAsync();
-
-        const start = statement.getFullStart();
-        const end = statement.getEnd();
-        const isExported = variableStatement.isExported();
-        const isDefaultExport = variableStatement.isDefaultExport();
-
-        if (parameters.length === 0) {
-          allTransformations.push({
-            componentName,
-            typeText: "",
-            typeName: "",
-            destructuringPattern: "",
-            isExported,
-            isDefaultExport,
-            bodyContent,
-            isInlineType: false,
-            isAsync,
-            hasDestructuring: false,
-            jsDocs: [],
-            start,
-            end,
-          });
-        } else {
-          const firstParam = parameters[0];
-          const typeNode = firstParam.getTypeNode();
-
-          if (!typeNode || !typeNode.isKind(SyntaxKind.TypeLiteral)) continue;
-
-          const typeLiteral = typeNode.asKindOrThrow(SyntaxKind.TypeLiteral);
-          const destructuringPattern = firstParam.getName();
-          const propsTypeName = componentName + "Props";
-
-          allTransformations.push({
-            componentName,
-            typeText: typeLiteral.getText(),
-            typeName: propsTypeName,
-            destructuringPattern,
-            isExported,
-            isDefaultExport,
-            bodyContent,
-            isInlineType: true,
-            isAsync,
-            hasDestructuring: destructuringPattern !== "props",
-            jsDocs: [],
-            start,
-            end,
-          });
-        }
-      }
-    }
-
-    // 2. Collect function declaration transformations
-    const functionDeclarations = sourceFile.getFunctions().filter(func => {
-      const name = func.getName();
-      return name && isReactComponent(name);
-    });
-
-    for (const func of functionDeclarations) {
-      const parameters = func.getParameters();
-      if (parameters.length !== 1) continue;
-
-      const firstParam = parameters[0];
-      const typeNode = firstParam.getTypeNode();
-
-      if (!typeNode) continue;
-
-      const componentName = func.getName();
-      const destructuringPattern = firstParam.getName();
-      const isExported = func.isExported();
-      const isDefaultExport = func.isDefaultExport();
-      const isAsync = func.isAsync();
-
-      const jsDocs = func.getJsDocs().map(doc => doc.getCommentText() ?? "");
-
-      const body = func.getBody();
-      if (!body) continue;
-      const bodyText = body.getText();
-      const bodyContent = bodyText.slice(1, -1).trim();
-
-      const start = func.getFullStart();
-      const end = func.getEnd();
-
-      if (typeNode.isKind(SyntaxKind.TypeLiteral)) {
-        const typeLiteral = typeNode.asKindOrThrow(SyntaxKind.TypeLiteral);
-        allTransformations.push({
-          componentName,
-          typeText: typeLiteral.getText(),
-          typeName: "",
-          destructuringPattern,
-          isExported,
-          isDefaultExport,
-          bodyContent,
-          isInlineType: true,
-          isAsync,
-          hasDestructuring: destructuringPattern !== "props",
-          jsDocs,
-          start,
-          end,
-        });
-      } else {
-        if (firstParam.getNameNode().getKind() !== SyntaxKind.ObjectBindingPattern) continue;
-
-        const objectPattern = firstParam.getNameNode().asKindOrThrow(SyntaxKind.ObjectBindingPattern);
-        const properties = objectPattern.getElements();
-
-        const hasThreeOrMoreProps = properties.length >= 3;
-        const hasDefaultValues = properties.some((prop) => {
-          return prop.getInitializer() !== undefined;
-        });
-
-        if (!hasThreeOrMoreProps && !hasDefaultValues) continue;
-
-        allTransformations.push({
-          componentName,
-          typeText: "",
-          typeName: typeNode.getText(),
-          destructuringPattern,
-          isExported,
-          isDefaultExport,
-          bodyContent,
-          isInlineType: false,
-          isAsync,
-          hasDestructuring: destructuringPattern !== "props",
-          jsDocs,
-          start,
-          end,
-        });
-      }
-    }
-
-    // 3. Sort by position ascending, process bottom-to-top to preserve positions
-    allTransformations.sort((a, b) => a.start - b.start);
-
-    const srcText = sourceFile.getFullText();
-    let result = srcText;
-
-    for (let i = allTransformations.length - 1; i >= 0; i--) {
-      const t = allTransformations[i];
-      const { componentName, typeText, typeName, destructuringPattern, isExported, isDefaultExport, bodyContent, isInlineType, isAsync, hasDestructuring, jsDocs, start, end } = t;
-
-      const lines = [];
-      const propsTypeName = typeName || componentName + "Props";
-
-      // Type alias first
-      if (isInlineType) {
-        lines.push("");
-        lines.push("export type " + propsTypeName + " = " + typeText + ";");
-      }
-
-      // JSDoc comments directly before the function
-      if (jsDocs && jsDocs.length > 0) {
-        lines.push("/**");
-        for (const line of jsDocs) {
-          for (const l of line.split("\\n")) {
-            lines.push(" * " + l.trim());
-          }
-        }
-        lines.push(" */");
-      }
-
-      let funcLine = "";
-      if (isExported) funcLine += "export ";
-      if (isDefaultExport) funcLine += "default ";
-      if (isAsync) funcLine += "async ";
-      funcLine += "function " + componentName + "(props: " + propsTypeName + ") {";
-      lines.push(funcLine);
-
-      if (hasDestructuring) {
-        const fixedPattern = destructuringPattern.replace(/\\.\\.\\.props\\b/g, "...restProps");
-        const fixedBodyContent = fixedPattern !== destructuringPattern
-          ? bodyContent.replace(/\\.\\.\\.props\\b/g, "...restProps")
-          : bodyContent;
-        lines.push("  const " + fixedPattern + " = props;");
-        lines.push("");
-        lines.push("  " + fixedBodyContent);
-      } else {
-        lines.push("  " + bodyContent);
-      }
-
-      lines.push("}");
-
-      result = result.slice(0, start) + lines.join("\\n") + result.slice(end);
-      transformedCount++;
+    if (defaultExportName) {
+      result += "\\nexport default " + defaultExportName + ";";
     }
 
     sourceFile.replaceWithText(result);
-
-    // Re-append separate export default statement at the end
-    if (defaultExportName) {
-      sourceFile.addStatements("\\nexport default " + defaultExportName + ";");
-    }
-
     sourceFile.saveSync();
-    const duration = performance.now() - start;
 
+    const duration = performance.now() - start;
     parentPort.postMessage({
       filePath,
       success: true,
-      message: transformedCount > 0 ? "Transformed " + transformedCount + " components" : "No components to transform",
-      componentsFound: transformedCount,
+      message: transformations.length > 0 ? "Transformed " + transformations.length + " components" : "No components to transform",
+      componentsFound: transformations.length,
       duration,
     });
   } catch (error) {
@@ -470,7 +249,10 @@ const command = Command.make(
 
             for (let i = 0; i < numWorkers; i++) {
               workersAlive++;
-              const worker = new Worker(WORKER_CODE, { eval: true });
+              const worker = new Worker(WORKER_CODE, {
+                eval: true,
+                workerData: { corePath: path.join(__dirname, "transform-core.js") },
+              });
 
               worker.on("message", (result: unknown) => {
                 const r = result as TransformResult;

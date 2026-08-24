@@ -1,9 +1,12 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { WORKER_CODE } from "./cli";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Worker pool logic extracted for testing
 function createWorkerPool(
@@ -38,7 +41,10 @@ function createWorkerPool(
 
     for (let i = 0; i < num; i++) {
       workersAlive++;
-      const worker = new Worker(WORKER_CODE, { eval: true });
+      const worker = new Worker(WORKER_CODE, {
+        eval: true,
+        workerData: { corePath: path.join(__dirname, "..", "dist", "transform-core.js") },
+      });
 
       worker.on("message", (result: unknown) => {
         results.push(result);

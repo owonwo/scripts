@@ -32,8 +32,8 @@ exports[`transformComponents > adds React import if missing 1`] = `
 
 exports[`transformComponents > adds React import if missing 2`] = `
 "function Box() {
-}
-"
+  return <div>Hello</div>;
+}"
 `;
 
 exports[`transformComponents > does not produce const props = props when destructuring pattern is props 1`] = `
@@ -46,15 +46,12 @@ exports[`transformComponents > does not produce const props = props when destruc
 
 exports[`transformComponents > does not produce const props = props when destructuring pattern is props 2`] = `
 "type FooProps = {
-      x: number;
-      y: string;
-    };
-
+  x: number;
+  y: string;
+};
 function Foo(props: FooProps) {
-
-      return <div>{props.x} {props.y}</div>;
-}
-"
+  return <div>{props.x} {props.y}</div>;
+}"
 `;
 
 exports[`transformComponents > handles exported components 1`] = `
@@ -67,18 +64,15 @@ exports[`transformComponents > handles exported components 1`] = `
 
 exports[`transformComponents > handles exported components 2`] = `
 "export type BoxProps = {
-      value: string
-    };
-
+  value: string
+};
 export function Box(props: BoxProps) {
+  const {
+  value
+} = props;
 
-      const {
-      value
-    } = props;
-
-      return <div>{value}</div>;
-}
-"
+  return <div>{value}</div>;
+}"
 `;
 
 exports[`transformComponents > handles named export (non-default) function declaration 1`] = `
@@ -278,23 +272,16 @@ export function C(props: CProps) {
 
 exports[`transformComponents > preserves order of multiple arrow functions 1`] = `
 "type AlphaProps = { x: number };
-
 function Alpha(props: AlphaProps) {
+  const { x } = props;
 
-      const { x } = props;
-
-      div>{x}</div
-}
-
-type BetaProps = { y: string };
-
+  div>{x}</div
+}type BetaProps = { y: string };
 function Beta(props: BetaProps) {
+  const { y } = props;
 
-      const { y } = props;
-
-      div>{y}</div
-}
-"
+  div>{y}</div
+}"
 `;
 
 exports[`transformComponents > preserves type alias before function declaration 1`] = `
@@ -346,24 +333,21 @@ exports[`transformComponents > renames ...props to ...restProps to avoid naming 
 
 exports[`transformComponents > renames ...props to ...restProps to avoid naming conflict 2`] = `
 "type AvatarProps = {
-      size?: number;
-      disabled?: boolean;
-      className?: string;
-      [key: string]: any;
-    };
-
+  size?: number;
+  disabled?: boolean;
+  className?: string;
+  [key: string]: any;
+};
 function Avatar(props: AvatarProps) {
+  const {
+  size = 80,
+  disabled,
+  className,
+  ...restProps
+} = props;
 
-      const {
-      size = 80,
-      disabled,
-      className,
-      ...restProps
-    } = props;
-
-      return <div {...restProps} className={className} />;
-}
-"
+  return <div {...restProps} className={className} />;
+}"
 `;
 
 exports[`transformComponents > returns error for non-existent file 1`] = `
@@ -391,11 +375,9 @@ exports[`transformComponents > skips lowercase variables 1`] = `
 `;
 
 exports[`transformComponents > skips lowercase variables 2`] = `
-"const notAComponent = "just a string";
-
-function Box() {
-}
-"
+"const notAComponent = "just a string";function Box() {
+  return <div>Hello</div>;
+}"
 `;
 
 exports[`transformComponents > transforms arrow function with inline type and default values 1`] = `
@@ -408,23 +390,20 @@ exports[`transformComponents > transforms arrow function with inline type and de
 
 exports[`transformComponents > transforms arrow function with inline type and default values 2`] = `
 "export type SegmentProgressBarProps = {
-      className?: string;
-      progressValue?: number;
-      gradient?: { startColor: string; endColor: string };
-    };
-
+  className?: string;
+  progressValue?: number;
+  gradient?: { startColor: string; endColor: string };
+};
 export function SegmentProgressBar(props: SegmentProgressBarProps) {
-
-      const {
-        gradient = {
-          startColor: "#ef4444",
-          endColor: "#f97316",
-        },
-        progressValue = 0,
-        className,
-      } = props;
-}
-"
+  const {
+    gradient = {
+      startColor: "#ef4444",
+      endColor: "#f97316",
+    },
+    progressValue = 0,
+    className,
+  } = props;
+}"
 `;
 
 exports[`transformComponents > transforms arrow function with no props 1`] = `
@@ -437,8 +416,8 @@ exports[`transformComponents > transforms arrow function with no props 1`] = `
 
 exports[`transformComponents > transforms arrow function with no props 2`] = `
 "function SimpleComponent() {
-}
-"
+  return <div>Hello World</div>
+}"
 `;
 
 exports[`transformComponents > transforms arrow function with props to function declaration 1`] = `
@@ -451,24 +430,21 @@ exports[`transformComponents > transforms arrow function with props to function 
 
 exports[`transformComponents > transforms arrow function with props to function declaration 2`] = `
 "type BoxProps = {
-      boxes: number,
-      count: string
-    };
-
+  boxes: number,
+  count: string
+};
 function Box(props: BoxProps) {
+  const {
+  boxes,
+  count
+} = props;
 
-      const {
-      boxes,
-      count
-    } = props;
-
-      return (
-        <div>
-          {boxes} - {count}
-        </div>
-      );
-}
-"
+  return (
+    <div>
+      {boxes} - {count}
+    </div>
+  );
+}"
 `;
 
 exports[`transformComponents > transforms exported function declaration with inline type and separate default export 1`] = `
