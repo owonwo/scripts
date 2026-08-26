@@ -1,5 +1,11 @@
 # @wigxel/react-tf-biome
 
+## 0.1.12
+
+### Patch Changes
+
+- stop validation leakage into non react functionality
+
 ## 0.1.11
 
 ## 0.1.9

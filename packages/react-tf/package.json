@@ -1,6 +1,6 @@
 {
   "name": "@wigxel/react-tf",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Transform Typescript React code for better readability",
   "keywords": [],
   "license": "ISC",
