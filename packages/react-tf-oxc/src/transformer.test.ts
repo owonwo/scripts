@@ -116,6 +116,89 @@ const Box = () => {
     expect(output).toMatchSnapshot();
   });
 
+  it("does not add export when function is exported via separate statement", async () => {
+    const input = `function Badge({ className, variant, ...props }: BadgeProps) {
+  return <div className={className} {...props} />;
+}
+
+export { Badge };`;
+
+    const filePath = writeTestFile(input);
+    const result = await transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expect(output).toContain("function Badge(");
+    expect(output).not.toMatch(/^export function Badge/m);
+    expect(output).toContain("export { Badge }");
+  });
+
+  it("transforms arrow function with inline type and parentheses body", async () => {
+    const input = `const WorkItem = ({
+  position,
+  company,
+  timeline,
+}: {
+  position: string;
+  company: string;
+  timeline: string;
+}) => (
+  <div className="flex justify-between text-sm">
+    <div>
+      <p className="font-medium text-white">{position}</p>
+      <p className="text-white/60">{company}</p>
+    </div>
+    <p className="text-white/50">{timeline}</p>
+  </div>
+);
+
+export default WorkItem;`;
+
+    const filePath = writeTestFile(input);
+    const result = await transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expectResult(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+  });
+
+  it("transforms expression body arrow function", async () => {
+    const input = `const Title = () => <span>Dashboard</span>;
+export { Title };`;
+
+    const filePath = writeTestFile(input);
+    const result = await transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expectResult(result).toMatchSnapshot();
+    expect(output).toMatchInlineSnapshot(`
+"function Title() {
+  return <span>Dashboard</span>
+}
+export { Title };"
+`);
+  });
+
+  it("transforms expression body arrow function with props", async () => {
+    const input = `const Badge = ({ label }: { label: string }) => <span>{label}</span>;
+export { Badge };`;
+
+    const filePath = writeTestFile(input);
+    const result = await transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expectResult(result).toMatchSnapshot();
+    expect(output).toMatchInlineSnapshot(`
+      "type BadgeProps = { label: string };
+
+      function Badge(props: BadgeProps) {
+        const { label } = props;
+
+        return <span>{label}</span>
+      }
+      export { Badge };"
+    `);
+  });
+
   it("adds React import if missing", async () => {
     const input = `const Box = () => {
   return <div>Hello</div>;

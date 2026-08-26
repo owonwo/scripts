@@ -432,6 +432,43 @@ export function SegmentProgressBar(props: SegmentProgressBarProps) {
 }"
 `;
 
+exports[`transformComponents > transforms arrow function with inline type and parentheses body 1`] = `
+{
+  "componentsFound": 1,
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms arrow function with inline type and parentheses body 2`] = `
+"type WorkItemProps = {
+  position: string;
+  company: string;
+  timeline: string;
+};
+
+function WorkItem(props: WorkItemProps) {
+  const {
+  position,
+  company,
+  timeline,
+} = props;
+
+  return (
+  <div className="flex justify-between text-sm">
+    <div>
+      <p className="font-medium text-white">{position}</p>
+      <p className="text-white/60">{company}</p>
+    </div>
+    <p className="text-white/50">{timeline}</p>
+  </div>
+)
+}
+
+
+export default WorkItem;"
+`;
+
 exports[`transformComponents > transforms arrow function with no props 1`] = `
 {
   "componentsFound": 1,
@@ -491,6 +528,22 @@ export function Do(props: DoProps) {
 
 
 export default Do;"
+`;
+
+exports[`transformComponents > transforms expression body arrow function 1`] = `
+{
+  "componentsFound": 1,
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms expression body arrow function with props 1`] = `
+{
+  "componentsFound": 1,
+  "message": "Transformed 1 components",
+  "success": true,
+}
 `;
 
 exports[`transformComponents > transforms function declaration with inline type literal and 3+ props 1`] = `
