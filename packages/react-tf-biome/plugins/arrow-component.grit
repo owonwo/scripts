@@ -3,7 +3,7 @@ language js(typescript, jsx)
 
 // Match: const UpperCase = (...) => ...
 // Suggests converting to function declaration
-`const $name = $arrow` as $decl where {
+`const $name = ($params) => $body` as $decl where {
     $name <: r"[A-Z].*",
     register_diagnostic(
         span = $decl,
