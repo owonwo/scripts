@@ -5,6 +5,7 @@
   "fixed": [
     [
       "@wigxel/react-tf",
+      "@wigxel/react-tf-oxc",
       "@wigxel/react-tf-biome"
     ]
   ],
