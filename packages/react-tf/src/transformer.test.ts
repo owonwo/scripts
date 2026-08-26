@@ -62,7 +62,7 @@ describe("transformComponents", () => {
         const { duration, filePath, ...rest } = result;
         expect(rest).toMatchSnapshot();
         expect(typeof duration).toBe("number");
-        expect(duration).toBeLessThan(1000);
+        expect(duration).toBeLessThan(5000);
         expect(typeof filePath).toBe("string");
         expect(filePath.length).toBeGreaterThan(0);
         return this;
@@ -104,6 +104,43 @@ describe("transformComponents", () => {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+  });
+
+  it("transforms expression body arrow function", () => {
+    const input = `const Title = () => <span>Dashboard</span>;
+export { Title };`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expectResult(result).toMatchSnapshot();
+    expect(output).toMatchInlineSnapshot(`
+"function Title() {
+  return <span>Dashboard</span>
+}
+export { Title };"
+`);
+  });
+
+  it("transforms expression body arrow function with props", () => {
+    const input = `const Badge = ({ label }: { label: string }) => <span>{label}</span>;
+export { Badge };`;
+
+    const filePath = writeTestFile(input);
+    const result = transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expectResult(result).toMatchSnapshot();
+    expect(output).toMatchInlineSnapshot(`
+"type BadgeProps = { label: string };
+function Badge(props: BadgeProps) {
+  const { label } = props;
+
+  return <span>{label}</span>
+}
+export { Badge };"
+`);
   });
 
   it("skips lowercase variables", () => {

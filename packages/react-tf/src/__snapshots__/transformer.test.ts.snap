@@ -275,12 +275,12 @@ exports[`transformComponents > preserves order of multiple arrow functions 1`] =
 function Alpha(props: AlphaProps) {
   const { x } = props;
 
-  return div>{x}</div
+  return <div>{x}</div>
 }type BetaProps = { y: string };
 function Beta(props: BetaProps) {
   const { y } = props;
 
-  return div>{y}</div
+  return <div>{y}</div>
 }"
 `;
 
@@ -427,13 +427,15 @@ function WorkItem(props: WorkItemProps) {
   timeline,
 } = props;
 
-  return <div className="flex justify-between text-sm">
+  return (
+  <div className="flex justify-between text-sm">
     <div>
       <p className="font-medium text-white">{position}</p>
       <p className="text-white/60">{company}</p>
     </div>
     <p className="text-white/50">{timeline}</p>
   </div>
+)
 }
 export default WorkItem;"
 `;
@@ -493,6 +495,39 @@ export function Do(props: DoProps) {
   
 }
 export default Do;"
+`;
+
+exports[`transformComponents > transforms expression body arrow function 1`] = `
+{
+  "componentsFound": 1,
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms expression body arrow function 2`] = `
+"function Title() {
+  return <span>Dashboard</span>
+}
+export { Title };"
+`;
+
+exports[`transformComponents > transforms expression body arrow function with props 1`] = `
+{
+  "componentsFound": 1,
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > transforms expression body arrow function with props 2`] = `
+"type BadgeProps = { label: string };
+function Badge(props: BadgeProps) {
+  const { label } = props;
+
+  return <span>{label}</span>
+}
+export { Badge };"
 `;
 
 exports[`transformComponents > transforms function declaration with inline type literal and 3+ props 1`] = `

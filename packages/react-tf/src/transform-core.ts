@@ -52,8 +52,8 @@ export function collectTransformations(sourceFile: SourceFile): Transformation[]
       const body = arrow.getBody();
       if (!body) continue;
       const bodyText = body.getText();
-      const bodyContent = bodyText.slice(1, -1).trim();
       const hasBlockBody = bodyText.startsWith("{");
+      const bodyContent = hasBlockBody ? bodyText.slice(1, -1).trim() : bodyText.trim();
 
       if (params.length === 0) {
         transformations.push({
