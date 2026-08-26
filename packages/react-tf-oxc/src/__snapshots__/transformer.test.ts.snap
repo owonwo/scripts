@@ -71,8 +71,6 @@ exports[`transformComponents > handles exported components 2`] = `
 export function Box(props: BoxProps) {
   const {
   value
-}: {
-  value: string
 } = props;
 
   return <div>{value}</div>;
@@ -95,8 +93,6 @@ exports[`transformComponents > handles named export (non-default) function decla
 export function Box(props: BoxProps) {
   const {
   value
-}: {
-  value: string
 } = props;
 
   return <div>{value}</div>;
@@ -119,8 +115,6 @@ exports[`transformComponents > handles non-exported function declaration 2`] = `
 function Box(props: BoxProps) {
   const {
   value
-}: {
-  value: string
 } = props;
 
   return <div>{value}</div>;
@@ -157,12 +151,6 @@ export function MediaThumb(props: MediaThumbProps) {
   className = "",
   videoRef,
   fill = false,
-}: {
-  item: MediaItem | null;
-  alt: string;
-  className?: string;
-  videoRef?: React.RefObject<HTMLVideoElement | null>;
-  fill?: boolean;
 } = props;
 
   return null;
@@ -187,9 +175,6 @@ export async function ResetPasswordHandler(props: ResetPasswordHandlerProps) {
   const {
   token,
   password,
-}: {
-  token: string;
-  password: string;
 } = props;
 
   await fetch("/api/reset", { method: "POST", body: JSON.stringify({ token, password }) });
@@ -208,10 +193,6 @@ function Foo(props: FooProps) {
   a,
   b,
   c
-}: {
-  a: string;
-  b: number;
-  c: boolean;
 } = props;
 
   return null;
@@ -244,8 +225,6 @@ exports[`transformComponents > preserves export default on function declaration 
 export default function Box(props: BoxProps) {
   const {
   value
-}: {
-  value: string
 } = props;
 
   return <div>{value}</div>;
@@ -272,7 +251,7 @@ export default function Box(props: BoxProps) {
   value,
   label,
   disabled
-}: BoxProps = props;
+} = props;
 
   return <div>{value}</div>;
 }"
@@ -290,8 +269,6 @@ type BProps = {
 function B(props: BProps) {
   const {
   value
-}: {
-  value: string
 } = props;
 
   return <div>{value}</div>;
@@ -304,8 +281,6 @@ export type CProps = {
 export function C(props: CProps) {
   const {
   x
-}: {
-  x: number
 } = props;
 
   return <div>{x}</div>;
@@ -316,14 +291,14 @@ exports[`transformComponents > preserves order of multiple arrow functions 1`] =
 "type AlphaProps = { x: number };
 
 function Alpha(props: AlphaProps) {
-  const { x }: { x: number } = props;
+  const { x } = props;
 
   return <div>{x}</div>
 }
 type BetaProps = { y: string };
 
 function Beta(props: BetaProps) {
-  const { y }: { y: string } = props;
+  const { y } = props;
 
   return <div>{y}</div>
 }"
@@ -337,8 +312,6 @@ exports[`transformComponents > preserves type alias before function declaration 
 function Foo(props: FooProps) {
   const {
   value
-}: {
-  value: string
 } = props;
 
   return <div>{value}</div>;
@@ -367,7 +340,7 @@ function Avatar(props: AvatarProps) {
   disabled,
   className,
   ...restProps
-}: AvatarProps = props;
+} = props;
 
   return <div {...restProps} className={className} />;
 }"
@@ -395,11 +368,6 @@ function Avatar(props: AvatarProps) {
   disabled,
   className,
   ...restProps
-}: {
-  size?: number;
-  disabled?: boolean;
-  className?: string;
-  [key: string]: any;
 } = props;
 
   return <div {...restProps} className={className} />;
@@ -496,9 +464,6 @@ function Box(props: BoxProps) {
   const {
   boxes,
   count
-}: {
-  boxes: number,
-  count: string
 } = props;
 
   return (

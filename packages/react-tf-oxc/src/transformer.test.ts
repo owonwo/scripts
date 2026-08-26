@@ -545,7 +545,7 @@ export default DashboardLayout;`;
       type DashboardLayoutProps = { children: React.ReactNode };
 
       async function DashboardLayout(props: DashboardLayoutProps) {
-        const { children }: { children: React.ReactNode } = props;
+        const { children } = props;
 
         return (
           "Hi"

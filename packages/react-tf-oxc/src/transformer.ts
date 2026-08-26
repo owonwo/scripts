@@ -95,7 +95,8 @@ function getDestructuringPatternName(param: AstNode, source: string): string {
     return param.name || source.slice(param.start, param.end);
   }
   if (param.type === "ObjectPattern") {
-    return source.slice(param.start, param.end);
+    const end = param.typeAnnotation ? param.typeAnnotation.start : param.end;
+    return source.slice(param.start, end);
   }
   return source.slice(param.start, param.end);
 }
