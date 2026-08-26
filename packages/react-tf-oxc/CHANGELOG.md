@@ -1,8 +1,7 @@
-# @wigxel/react-tf
+# @wigxel/react-tf-oxc
 
-## 0.1.4
+## 0.1.11
 
 ### Patch Changes
 
-- - resolved unexpected transform output
-  - @wigxel/cli-core@0.1.4
+- oxc plugin now par with legacy

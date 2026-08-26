@@ -1,5 +1,7 @@
 # @wigxel/react-tf
 
+## 0.1.11
+
 ## 0.1.9
 
 ### Patch Changes
