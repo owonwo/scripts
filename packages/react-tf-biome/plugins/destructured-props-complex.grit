@@ -6,6 +6,7 @@ language js(typescript, jsx)
 // Uses JsParameters() node matching instead of regex on bound variable
 JsParameters() as $params where {
     $params <: r"\([\s\S]*,[\s\S]*,[\s\S]*,[\s\S]*\)",
+    $params <: r"^.*props",
     register_diagnostic(
         span = $params,
         message = "Complex destructured props — consider extracting to named type.",

@@ -1,0 +1,15 @@
+{
+  "name": "biome-plugin-test",
+  "private": true,
+  "scripts": {
+    "test": "bash test.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "@types/react": "^19.0.0",
+    "@wigxel/react-tf-biome": "workspace:*"
+  },
+  "dependencies": {
+    "react": "^19.0.0"
+  }
+}

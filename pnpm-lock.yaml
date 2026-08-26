@@ -53,6 +53,22 @@ importers:
         specifier: latest
         version: 0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.11)(typescript@7.0.2)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.11)(yaml@2.9.0))(yaml@2.9.0)
 
+  examples/biome-test:
+    dependencies:
+      react:
+        specifier: ^19.0.0
+        version: 19.2.8
+    devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.0.0
+        version: 2.5.7
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.18
+      '@wigxel/react-tf-biome':
+        specifier: workspace:*
+        version: link:../../packages/react-tf-biome
+
   examples/test-react-app:
     dependencies:
       '@tanstack/react-query':

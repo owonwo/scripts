@@ -15,7 +15,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "cd ../../examples/biome-test && pnpm run test"
   },
   "dependencies": {
     "@wigxel/cli-core": "workspace:*"

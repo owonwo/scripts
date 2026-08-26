@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    "./node_modules/@wigxel/react-tf-biome/plugins/arrow-component.grit",
+    "./node_modules/@wigxel/react-tf-biome/plugins/destructured-props-complex.grit",
+    "./node_modules/@wigxel/react-tf-biome/plugins/inline-type-literal.grit",
+    "./node_modules/@wigxel/react-tf-biome/plugins/rest-props-rename.grit"
+  ]
+}
