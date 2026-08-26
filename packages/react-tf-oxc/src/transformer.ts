@@ -113,7 +113,7 @@ function getObjectPatternProperties(param: AstNode): AstNode[] {
 function hasDefaultValues(param: AstNode): boolean {
   if (param.type !== "ObjectPattern") return false;
   const props = param.properties || [];
-  return props.some((p: any) => p.type === "ObjectProperty" && p.value?.type === "AssignmentPattern");
+  return props.some((p: any) => (p.type === "ObjectProperty" || p.type === "Property") && p.value?.type === "AssignmentPattern");
 }
 
 export async function transformComponents(filePath: string): Promise<TransformResult> {
