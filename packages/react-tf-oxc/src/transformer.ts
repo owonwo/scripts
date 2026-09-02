@@ -578,7 +578,10 @@ export async function transformComponents(filePath: string): Promise<TransformRe
       const marker = `export default ${defaultExportName};`;
       let idx = result.indexOf(marker);
       while (idx !== -1) {
-        result = result.slice(0, idx) + result.slice(idx + marker.length);
+        // Also strip trailing newlines before the marker to prevent accumulation
+        let start = idx;
+        while (start > 0 && result[start - 1] === "\n") start--;
+        result = result.slice(0, start) + result.slice(idx + marker.length);
         idx = result.indexOf(marker);
       }
     }

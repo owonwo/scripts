@@ -66,6 +66,33 @@ describe("transformComponents", () => {
     };
   }
 
+  async function assertIdempotent(input: string, iterations: number = 4): Promise<void> {
+    const outputs: string[] = [];
+    let currentInput = input;
+
+    for (let i = 0; i < iterations; i++) {
+      const filePath = writeTestFile(currentInput);
+      await transformComponents(filePath);
+      const output = readFile(filePath);
+      outputs.push(output);
+      currentInput = output;
+    }
+
+    const divergences: number[] = [];
+    for (let i = 1; i < outputs.length; i++) {
+      if (outputs[i] !== outputs[0]) {
+        divergences.push(i + 1);
+      }
+    }
+
+    if (divergences.length > 0) {
+      throw new Error(
+        `Transformer is not idempotent. ` +
+        `${divergences.length} divergence(s) found at iterations: ${divergences.join(", ")}`
+      );
+    }
+  }
+
   it("transforms arrow function with props to function declaration", async () => {
     const input = `const Box = ({
   boxes,
@@ -87,6 +114,7 @@ describe("transformComponents", () => {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("transforms arrow function with no props", async () => {
@@ -100,6 +128,7 @@ describe("transformComponents", () => {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("skips lowercase variables", async () => {
@@ -114,6 +143,7 @@ const Box = () => {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("does not add export when function is exported via separate statement", async () => {
@@ -130,6 +160,7 @@ export { Badge };`;
     expect(output).toContain("function Badge(");
     expect(output).not.toMatch(/^export function Badge/m);
     expect(output).toContain("export { Badge }");
+    await assertIdempotent(input);
   });
 
   it("transforms arrow function with inline type and parentheses body", async () => {
@@ -159,6 +190,7 @@ export default WorkItem;`;
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("transforms expression body arrow function", async () => {
@@ -176,6 +208,7 @@ export { Title };`;
 }
 export { Title };"
 `);
+    await assertIdempotent(input);
   });
 
   it("transforms expression body arrow function with props", async () => {
@@ -197,6 +230,7 @@ export { Badge };`;
       }
       export { Badge };"
     `);
+    await assertIdempotent(input);
   });
 
   it("adds React import if missing", async () => {
@@ -210,6 +244,7 @@ export { Badge };`;
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves existing React import", async () => {
@@ -226,6 +261,7 @@ const Box = () => {
     expectResult(result).toMatchSnapshot();
     const importCount = (output.match(/import React from "react"/g) || []).length;
     expect(importCount).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("handles exported components", async () => {
@@ -243,6 +279,7 @@ const Box = () => {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("returns error for non-existent file", async () => {
@@ -278,6 +315,7 @@ const Box = () => {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("renames ...props to ...restProps in function declaration with named type", async () => {
@@ -303,6 +341,7 @@ function Avatar({
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves export default on function declaration with inline type", async () => {
@@ -320,6 +359,7 @@ function Avatar({
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves export default on function declaration with named type", async () => {
@@ -343,6 +383,7 @@ export default function Box({
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("handles named export (non-default) function declaration", async () => {
@@ -360,6 +401,7 @@ export default function Box({
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("handles non-exported function declaration", async () => {
@@ -377,6 +419,7 @@ export default function Box({
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("transforms function declaration with inline type literal and 3+ props", async () => {
@@ -394,6 +437,7 @@ export default function Box({
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("transforms exported function declaration with inline type and separate default export", async () => {
@@ -407,6 +451,7 @@ export default Do;`;
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves export default keyword on function declaration with inline type", async () => {
@@ -419,6 +464,7 @@ export default Do;`;
     const output = readFile(filePath);
 
     expect(output).toContain("export default function Widget(props: WidgetProps");
+    await assertIdempotent(input);
   });
 
   it("transforms arrow function with inline type and default values", async () => {
@@ -443,6 +489,7 @@ export default Do;`;
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves JSDoc comment on function declaration with inline type", async () => {
@@ -473,6 +520,7 @@ export function MediaThumb({
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves named type reference and adds destructuring", async () => {
@@ -524,6 +572,7 @@ function MediaThumbnail({ variant, media, alt }: MediaProps) {
     expect(output).toMatchSnapshot();
     expect(output).toContain("props: MediaProps");
     expect(output).not.toContain("MediaThumbnailProps");
+    await assertIdempotent(input);
   });
 
   it("preserves async keyword on function declaration", async () => {
@@ -543,6 +592,7 @@ function MediaThumbnail({ variant, media, alt }: MediaProps) {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("does not produce const props = props when destructuring pattern is props", async () => {
@@ -559,6 +609,7 @@ function MediaThumbnail({ variant, media, alt }: MediaProps) {
 
     expectResult(result).toMatchSnapshot();
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves order of multiple arrow functions", async () => {
@@ -570,6 +621,7 @@ const Beta = ({ y }: { y: string }) => <div>{y}</div>;`;
     const output = readFile(filePath);
 
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves type alias before function declaration", async () => {
@@ -586,6 +638,7 @@ const Beta = ({ y }: { y: string }) => <div>{y}</div>;`;
     const output = readFile(filePath);
 
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves formatting across multiple function declarations", async () => {
@@ -614,6 +667,7 @@ export function C({
     const output = readFile(filePath);
 
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves destructuring order before body content", async () => {
@@ -634,6 +688,7 @@ export function C({
     const output = readFile(filePath);
 
     expect(output).toMatchSnapshot();
+    await assertIdempotent(input);
   });
 
   it("preserves async and moves export default to end for arrow functions", async () => {
@@ -650,6 +705,7 @@ export default DashboardLayout;`;
     expect(output).toContain("async function DashboardLayout(");
     const lines = output.trim().split("\n").filter(l => l.trim());
     expect(lines[lines.length - 1]).toBe("export default DashboardLayout;");
+    await assertIdempotent(input);
   });
 
   it("transforms async arrow function with children prop", async () => {
@@ -685,9 +741,8 @@ export default DashboardLayout;`;
           "Hi"
         );
       }
-
-
       export default DashboardLayout;"
     `);
+    await assertIdempotent(input);
   });
 });
