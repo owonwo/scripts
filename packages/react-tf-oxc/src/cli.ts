@@ -150,7 +150,7 @@ const command = Command.make(
 
             for (let i = 0; i < numWorkers; i++) {
               workersAlive++;
-              const worker = new Worker(WORKER_CODE, { eval: true, type: "module" });
+              const worker = new Worker(WORKER_CODE, { eval: true });
 
               worker.on("message", (result: unknown) => {
                 const r = result as TransformResult;

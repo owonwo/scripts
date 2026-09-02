@@ -475,6 +475,57 @@ export function MediaThumb({
     expect(output).toMatchSnapshot();
   });
 
+  it("preserves named type reference and adds destructuring", async () => {
+    const input = `type MediaProps = {
+  variant: "video" | "image";
+  media: Media | null;
+  alt: string;
+};
+
+function MediaThumbnail({ variant, media, alt }: MediaProps) {
+  const isVideo = variant === "video";
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const thumbnail = (
+    <MediaThumb
+      item={media}
+      alt={alt}
+      fill
+      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+      videoRef={videoRef}
+    />
+  );
+
+  if (isVideo) {
+    return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: Not necessary
+      <div
+        className="video-container"
+        onMouseEnter={() => {
+          videoRef.current?.play().catch(() => {});
+        }}
+        onMouseLeave={() => {
+          videoRef.current?.pause();
+        }}
+      >
+        {thumbnail}
+      </div>
+    );
+  }
+
+  return thumbnail;
+}`;
+
+    const filePath = writeTestFile(input);
+    const result = await transformComponents(filePath);
+    const output = readFile(filePath);
+
+    expectResult(result).toMatchSnapshot();
+    expect(output).toMatchSnapshot();
+    expect(output).toContain("props: MediaProps");
+    expect(output).not.toContain("MediaThumbnailProps");
+  });
+
   it("preserves async keyword on function declaration", async () => {
     const input = `export async function ResetPasswordHandler({
   token,

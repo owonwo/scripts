@@ -287,6 +287,58 @@ export function C(props: CProps) {
 }"
 `;
 
+exports[`transformComponents > preserves named type reference and adds destructuring 1`] = `
+{
+  "componentsFound": 1,
+  "message": "Transformed 1 components",
+  "success": true,
+}
+`;
+
+exports[`transformComponents > preserves named type reference and adds destructuring 2`] = `
+"type MediaProps = {
+  variant: "video" | "image";
+  media: Media | null;
+  alt: string;
+};
+
+function MediaThumbnail(props: MediaProps) {
+  const { variant, media, alt } = props;
+
+  const isVideo = variant === "video";
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const thumbnail = (
+    <MediaThumb
+      item={media}
+      alt={alt}
+      fill
+      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+      videoRef={videoRef}
+    />
+  );
+
+  if (isVideo) {
+    return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: Not necessary
+      <div
+        className="video-container"
+        onMouseEnter={() => {
+          videoRef.current?.play().catch(() => {});
+        }}
+        onMouseLeave={() => {
+          videoRef.current?.pause();
+        }}
+      >
+        {thumbnail}
+      </div>
+    );
+  }
+
+  return thumbnail;
+}"
+`;
+
 exports[`transformComponents > preserves order of multiple arrow functions 1`] = `
 "type AlphaProps = { x: number };
 

@@ -521,7 +521,7 @@ export async function transformComponents(filePath: string): Promise<TransformRe
         jsDocs, isAsync, hasBlockBody, start: tStart, end: tEnd, rawComment,
       } = t;
 
-      const propsTypeName = typeName || `${componentName}Props`;
+      const propsTypeName = !isInlineType && typeText ? typeText : (typeName || `${componentName}Props`);
       const lines: string[] = [];
 
       // Re-emit original comment if present
