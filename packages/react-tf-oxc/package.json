@@ -1,6 +1,6 @@
 {
   "name": "@wigxel/react-tf-oxc",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Transform React function components from arrow functions to function declarations",
   "keywords": [],
   "license": "ISC",
@@ -16,7 +16,7 @@
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "demo": "rm -rf test-project && cp -r sample test-project && pnpm run build && node dist/cli.js --force ./test-project --debug --force;"
+    "demo": "tmpdir=$(mktemp -d) && cp -r sample/src \"$tmpdir/src\" && pnpm run build && node dist/cli.js --force \"$tmpdir/src\" && echo '--- Output ---' && cat \"$tmpdir/src/default-export.tsx\" && rm -rf \"$tmpdir\""
   },
   "dependencies": {
     "@wigxel/cli-core": "workspace:*",
