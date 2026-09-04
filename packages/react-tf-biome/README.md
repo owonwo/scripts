@@ -2,7 +2,7 @@
 
 GritQL lint rules for the [React Component Transformer](../react-tf) coding standards. Detects transformable patterns and provides auto-fixes where safe.
 
-Pairs with [`@wigxel/react-tf`](../react-tf) — this package provides lint-time warnings, the CLI performs the actual refactoring.
+Pairs with [`@wigxel/react-tf`](../react-tf) or [`@wigxel/react-tf-oxc`](../react-tf-oxc) — this package provides lint-time warnings, the CLI performs the actual refactoring.
 
 ## Rules
 
@@ -102,15 +102,17 @@ biome lint --write ./src
 
 ## How it works
 
-These rules run as part of `biome lint`. They detect patterns that [`@wigxel/react-tf`](../react-tf) can transform, giving you feedback before running the CLI.
+These rules run as part of `biome lint`. They detect patterns that [`@wigxel/react-tf`](../react-tf) or [`@wigxel/react-tf-oxc`](../react-tf-oxc) can transform, giving you feedback before running the CLI.
 
 ```bash
 # Step 1: See what needs transforming
 biome lint ./src
 
 # Step 2: Run the actual refactoring
-pnpm add -D @wigxel/react-tf
-wigxel-rtf ./src
+pnpm add -D @wigxel/react-tf      # ts-morph based
+# or
+pnpm add -D @wigxel/react-tf-oxc  # oxc-parser based (faster)
+nurm ./src                         # or oxc-nurm
 ```
 
 ## Dependencies

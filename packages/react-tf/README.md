@@ -2,6 +2,8 @@
 
 A CLI tool that transforms React codebase to the Wigxel coding standards
 
+Requires Node.js >= 22.
+
 ## Features
 
 - **Arrow Function → Function Declaration**: Automatically converts arrow function components to function declarations
@@ -107,6 +109,12 @@ function Avatar(props: AvatarProps) {
 4. **AST Transformation**: Uses `ts-morph` to parse and transform the AST
 5. **Output**: Writes transformed files back to disk
 
+## Alternatives
+
+[`@wigxel/react-tf-oxc`](../react-tf-oxc) provides the same transformations using
+`oxc-parser` (Rust-based) instead of `ts-morph`. Significantly faster parsing on
+large codebases. Install with `pnpm add -D @wigxel/react-tf-oxc`, use via `oxc-nurm`.
+
 ## Cache
 
 The tool uses content-hash caching stored in `node_modules/.cache/react-component-transformer/transformer-cache.fsh` at the project root. It automatically skips unchanged files between runs.
@@ -117,16 +125,16 @@ To force reprocessing of all files, use the `--force` flag.
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Run tests
-npm test
+pnpm test
 
 # Build the CLI
-npm run build
+pnpm build
 
 # Run demo
-npm run demo
+pnpm demo
 ```
 
 ## License

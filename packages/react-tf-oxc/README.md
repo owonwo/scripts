@@ -1,6 +1,8 @@
-# React Component Transformer
+# @wigxel/react-tf-oxc
 
-A CLI tool that transforms React codebase to the Wigxel coding standards
+A CLI tool that transforms React codebase to the Wigxel coding standards, powered by `oxc-parser` (Rust-based).
+
+Requires Node.js >= 22.
 
 ## Features
 
@@ -17,22 +19,22 @@ A CLI tool that transforms React codebase to the Wigxel coding standards
 
 ```bash
 # Basic usage (current directory)
-nurm
+oxc-nurm
 
 # Scan specific directory
-nurm ./src
+oxc-nurm ./src
 
 # Scan multiple directories
-nurm app components lib
+oxc-nurm app components lib
 
 # With debug logging
-nurm ./src --debug
+oxc-nurm ./src --debug
 
 # Force reprocess (ignore cache)
-nurm ./src --force
+oxc-nurm ./src --force
 
 # Specify number of workers
-nurm ./src --workers 8
+oxc-nurm ./src --workers 8
 ```
 
 ## Options
@@ -104,7 +106,7 @@ function Avatar(props: AvatarProps) {
 1. **Scanning**: Recursively scans the target directory for `.tsx` files, respecting `.gitignore` rules
 2. **Caching**: Checks content-hash cache to skip unchanged files
 3. **Parallel Processing**: Distributes files across worker threads
-4. **AST Transformation**: Uses `ts-morph` to parse and transform the AST
+4. **AST Transformation**: Uses `oxc-parser` to parse and transform the AST
 5. **Output**: Writes transformed files back to disk
 
 ## Cache
@@ -117,16 +119,16 @@ To force reprocessing of all files, use the `--force` flag.
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Run tests
-npm test
+pnpm test
 
 # Build the CLI
-npm run build
+pnpm build
 
 # Run demo
-npm run demo
+pnpm demo
 ```
 
 ## License
