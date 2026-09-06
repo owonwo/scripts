@@ -64,7 +64,7 @@ exports[`transformComponents > handles exported components 1`] = `
 `;
 
 exports[`transformComponents > handles exported components 2`] = `
-"export type BoxProps = {
+"type BoxProps = {
   value: string
 };
 
@@ -86,7 +86,7 @@ exports[`transformComponents > handles named export (non-default) function decla
 `;
 
 exports[`transformComponents > handles named export (non-default) function declaration 2`] = `
-"export type BoxProps = {
+"type BoxProps = {
   value: string
 };
 
@@ -136,7 +136,7 @@ exports[`transformComponents > preserves JSDoc comment on function declaration w
  * shared project modal so all three stay visually consistent.
  */
 
-export type MediaThumbProps = {
+type MediaThumbProps = {
   item: MediaItem | null;
   alt: string;
   className?: string;
@@ -166,7 +166,7 @@ exports[`transformComponents > preserves async keyword on function declaration 1
 `;
 
 exports[`transformComponents > preserves async keyword on function declaration 2`] = `
-"export type ResetPasswordHandlerProps = {
+"type ResetPasswordHandlerProps = {
   token: string;
   password: string;
 };
@@ -218,7 +218,7 @@ exports[`transformComponents > preserves export default on function declaration 
 `;
 
 exports[`transformComponents > preserves export default on function declaration with inline type 2`] = `
-"export type BoxProps = {
+"type BoxProps = {
   value: string
 };
 
@@ -274,7 +274,7 @@ function B(props: BProps) {
   return <div>{value}</div>;
 }
 
-export type CProps = {
+type CProps = {
   x: number
 };
 
@@ -466,7 +466,7 @@ exports[`transformComponents > transforms arrow function with inline type and de
 `;
 
 exports[`transformComponents > transforms arrow function with inline type and default values 2`] = `
-"export type SegmentProgressBarProps = {
+"type SegmentProgressBarProps = {
   className?: string;
   progressValue?: number;
   gradient?: { startColor: string; endColor: string };
@@ -570,7 +570,7 @@ exports[`transformComponents > transforms exported function declaration with inl
 `;
 
 exports[`transformComponents > transforms exported function declaration with inline type and separate default export 2`] = `
-"export type DoProps = { name: string };
+"type DoProps = { name: string };
 
 export function Do(props: DoProps) {
   

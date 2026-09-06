@@ -204,8 +204,7 @@ export function buildTransformedSource(
     const lines: string[] = [];
 
     if (isInlineType) {
-      const exportPrefix = isExported ? "export " : "";
-      lines.push(`${exportPrefix}type ${propsTypeName} = ${typeText};`);
+      lines.push(`type ${propsTypeName} = ${typeText};`);
     }
 
     if (jsDocs.length > 0) {

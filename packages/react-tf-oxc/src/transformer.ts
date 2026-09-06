@@ -531,9 +531,8 @@ export async function transformComponents(filePath: string): Promise<TransformRe
       }
 
       // Type alias first
-      const exportPrefix = tIsExported ? "export " : "";
       if (isInlineType) {
-        lines.push(`${exportPrefix}type ${propsTypeName} = ${typeText};`);
+        lines.push(`type ${propsTypeName} = ${typeText};`);
         lines.push("");
       }
 

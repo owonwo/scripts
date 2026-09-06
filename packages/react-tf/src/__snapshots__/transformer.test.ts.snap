@@ -63,7 +63,7 @@ exports[`transformComponents > handles exported components 1`] = `
 `;
 
 exports[`transformComponents > handles exported components 2`] = `
-"export type BoxProps = {
+"type BoxProps = {
   value: string
 };
 export function Box(props: BoxProps) {
@@ -84,7 +84,7 @@ exports[`transformComponents > handles named export (non-default) function decla
 `;
 
 exports[`transformComponents > handles named export (non-default) function declaration 2`] = `
-"export type BoxProps = {
+"type BoxProps = {
   value: string
 };
 export function Box(props: BoxProps) {
@@ -126,7 +126,7 @@ exports[`transformComponents > preserves JSDoc comment on function declaration w
 `;
 
 exports[`transformComponents > preserves JSDoc comment on function declaration with inline type 2`] = `
-"export type MediaThumbProps = {
+"type MediaThumbProps = {
   item: MediaItem | null;
   alt: string;
   className?: string;
@@ -160,7 +160,7 @@ exports[`transformComponents > preserves async keyword on function declaration 1
 `;
 
 exports[`transformComponents > preserves async keyword on function declaration 2`] = `
-"export type ResetPasswordHandlerProps = {
+"type ResetPasswordHandlerProps = {
   token: string;
   password: string;
 };
@@ -210,7 +210,7 @@ exports[`transformComponents > preserves export default on function declaration 
 `;
 
 exports[`transformComponents > preserves export default on function declaration with inline type 2`] = `
-"export type BoxProps = {
+"type BoxProps = {
   value: string
 };
 export default function Box(props: BoxProps) {
@@ -258,7 +258,7 @@ function B(props: BProps) {
 } = props;
 
   return <div>{value}</div>;
-}export type CProps = {
+}type CProps = {
   x: number
 };
 export function C(props: CProps) {
@@ -389,7 +389,7 @@ exports[`transformComponents > transforms arrow function with inline type and de
 `;
 
 exports[`transformComponents > transforms arrow function with inline type and default values 2`] = `
-"export type SegmentProgressBarProps = {
+"type SegmentProgressBarProps = {
   className?: string;
   progressValue?: number;
   gradient?: { startColor: string; endColor: string };
@@ -490,7 +490,7 @@ exports[`transformComponents > transforms exported function declaration with inl
 `;
 
 exports[`transformComponents > transforms exported function declaration with inline type and separate default export 2`] = `
-"export type DoProps = { name: string };
+"type DoProps = { name: string };
 export function Do(props: DoProps) {
   
 }
@@ -505,29 +505,12 @@ exports[`transformComponents > transforms expression body arrow function 1`] = `
 }
 `;
 
-exports[`transformComponents > transforms expression body arrow function 2`] = `
-"function Title() {
-  return <span>Dashboard</span>
-}
-export { Title };"
-`;
-
 exports[`transformComponents > transforms expression body arrow function with props 1`] = `
 {
   "componentsFound": 1,
   "message": "Transformed 1 components",
   "success": true,
 }
-`;
-
-exports[`transformComponents > transforms expression body arrow function with props 2`] = `
-"type BadgeProps = { label: string };
-function Badge(props: BadgeProps) {
-  const { label } = props;
-
-  return <span>{label}</span>
-}
-export { Badge };"
 `;
 
 exports[`transformComponents > transforms function declaration with inline type literal and 3+ props 1`] = `
