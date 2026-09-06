@@ -9,7 +9,8 @@
     "clean": "pnpm -r run clean",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "commit": "cz"
   },
   "dependencies": {
     "@effect/cli": "0.77.0",
