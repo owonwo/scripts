@@ -19,6 +19,8 @@
     "test": "cd ../../examples/biome-test && pnpm run test"
   },
   "dependencies": {
+    "@effect/platform": "0.97.1",
+    "@effect/platform-node": "0.108.1",
     "@wigxel/cli-core": "workspace:*"
   },
   "devDependencies": {

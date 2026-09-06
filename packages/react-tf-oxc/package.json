@@ -19,6 +19,9 @@
     "demo": "tmpdir=$(mktemp -d) && cp -r sample/src \"$tmpdir/src\" && pnpm run build && node dist/cli.js --force \"$tmpdir/src\" && echo '--- Output ---' && cat \"$tmpdir/src/default-export.tsx\" && rm -rf \"$tmpdir\""
   },
   "dependencies": {
+    "@effect/cli": "0.77.0",
+    "@effect/platform": "0.97.1",
+    "@effect/platform-node": "0.108.1",
     "@wigxel/cli-core": "workspace:*",
     "fast-fs-hash": "^0.0.3",
     "ignore": "^7.0.6",
@@ -26,7 +29,6 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
-    "@effect/cli": "0.77.0",
     "esbuild": "^0.28.2",
     "vitest": "^4.1.10"
   },

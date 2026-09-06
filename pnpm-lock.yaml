@@ -12,21 +12,6 @@ importers:
 
   .:
     dependencies:
-      '@effect/cli':
-        specifier: 0.77.0
-        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.1))(@effect/printer-ansi@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
-      '@effect/platform':
-        specifier: 0.97.1
-        version: 0.97.1(effect@3.22.1)
-      '@effect/platform-node':
-        specifier: 0.108.1
-        version: 0.108.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
-      '@effect/printer':
-        specifier: 0.51.0
-        version: 0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1)
-      '@effect/printer-ansi':
-        specifier: 0.51.0
-        version: 0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1)
       effect:
         specifier: 3.22.1
         version: 3.22.1
@@ -224,6 +209,16 @@ importers:
         version: 5.9.3
 
   packages/env-cleaner:
+    dependencies:
+      '@effect/cli':
+        specifier: 0.77.0
+        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.1))(@effect/printer-ansi@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
+      '@effect/platform':
+        specifier: 0.97.1
+        version: 0.97.1(effect@3.22.1)
+      '@effect/platform-node':
+        specifier: 0.108.1
+        version: 0.108.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
     devDependencies:
       scriptc:
         specifier: 0.0.17
@@ -274,6 +269,12 @@ importers:
       '@biomejs/biome':
         specifier: '>=2.0.0'
         version: 2.5.7
+      '@effect/platform':
+        specifier: 0.97.1
+        version: 0.97.1(effect@3.22.1)
+      '@effect/platform-node':
+        specifier: 0.108.1
+        version: 0.108.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
       '@wigxel/cli-core':
         specifier: workspace:*
         version: link:../cli-core
@@ -284,6 +285,15 @@ importers:
 
   packages/react-tf-oxc:
     dependencies:
+      '@effect/cli':
+        specifier: 0.77.0
+        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.1))(@effect/printer-ansi@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
+      '@effect/platform':
+        specifier: 0.97.1
+        version: 0.97.1(effect@3.22.1)
+      '@effect/platform-node':
+        specifier: 0.108.1
+        version: 0.108.1(@effect/cluster@0.60.2(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.19.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(@effect/rpc@0.76.2(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.52.1(@effect/experimental@0.61.1(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.97.1(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
       '@wigxel/cli-core':
         specifier: workspace:*
         version: link:../cli-core
@@ -297,9 +307,6 @@ importers:
         specifier: ^0.146.0
         version: 0.146.0
     devDependencies:
-      '@effect/cli':
-        specifier: 0.77.0
-        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.1))(@effect/printer-ansi@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
       '@types/node':
         specifier: ^26.1.2
         version: 26.2.0
