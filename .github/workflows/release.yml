@@ -21,12 +21,15 @@ jobs:
 
       - run: pnpm install
 
-      - run: pnpm -r --filter '!@wigxel/env-cleaner' run build || echo "build skipped for CI demo"
+      - name: Ensure vite for builds
+        run: pnpm add -wD vite@^8.2.1 --save-dev || true
 
-      - run: pnpm -r --filter '!@wigxel/env-cleaner' run test || echo "test skipped for CI demo"
+      - run: pnpm -r --filter '!@wigxel/env-cleaner' run build
+
+      - run: pnpm -r --filter '!@wigxel/env-cleaner' run test
 
       - name: Validate example apps
-        run: pnpm --filter @wigxel/crag run validate || echo "validate skipped"
+        run: pnpm --filter @wigxel/crag run validate
 
       - name: Run react-tf demo
         run: pnpm --filter @wigxel/react-tf run demo
