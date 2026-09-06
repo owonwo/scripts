@@ -28,6 +28,12 @@ jobs:
       - name: Validate example apps
         run: pnpm --filter @wigxel/crag run validate || echo "validate skipped"
 
+      - name: Run react-tf demo
+        run: pnpm --filter @wigxel/react-tf run demo
+
+      - name: Run react-tf-oxc demo
+        run: pnpm --filter @wigxel/react-tf-oxc run demo
+
   release:
     needs: validate
     runs-on: ubuntu-latest
