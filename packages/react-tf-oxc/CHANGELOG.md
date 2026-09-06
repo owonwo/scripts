@@ -1,5 +1,11 @@
 # @wigxel/react-tf-oxc
 
+## 0.1.15
+
+### Patch Changes
+
+- missing @effect/cli when installed in projects
+
 ## 0.1.14
 
 ### Patch Changes
