@@ -20,8 +20,12 @@ jobs:
 
       - run: pnpm install
 
+      - run: pnpm run build
+
+      - run: pnpm run test
+
       - name: Validate example apps
-        run: pnpm run validate
+        run: pnpm --filter @wigxel/crag run validate
 
   release:
     needs: validate
@@ -46,7 +50,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: pnpm run publish:package
+          publish: pnpm run release
         env:
           GITHUB_TOKEN: ${{ secrets.WIGXEL_GITHUB_PACKAGE_TOKEN }}
           NPM_TOKEN: ${{ secrets.WIGXEL_NPM_TOKEN }}
