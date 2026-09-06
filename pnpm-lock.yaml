@@ -158,6 +158,9 @@ importers:
         specifier: ^3.4.2
         version: 3.4.2
     devDependencies:
+      '@effect/cli':
+        specifier: 0.77.0
+        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.1))(@effect/printer-ansi@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
       effect:
         specifier: 3.22.1
         version: 3.22.1
@@ -294,6 +297,9 @@ importers:
         specifier: ^0.146.0
         version: 0.146.0
     devDependencies:
+      '@effect/cli':
+        specifier: 0.77.0
+        version: 0.77.0(@effect/platform@0.97.1(effect@3.22.1))(@effect/printer-ansi@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.51.0(@effect/typeclass@0.41.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
       '@types/node':
         specifier: ^26.1.2
         version: 26.2.0

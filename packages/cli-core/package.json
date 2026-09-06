@@ -20,8 +20,9 @@
   },
   "devDependencies": {
     "effect": "3.22.1",
+    "vitest": "^4.1.10",
     "typescript": "^5.7.0",
-    "vitest": "^4.1.10"
+    "@effect/cli": "0.77.0"
   },
   "peerDependencies": {
     "effect": ">=3.22.1"
