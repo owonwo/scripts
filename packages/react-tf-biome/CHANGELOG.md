@@ -1,5 +1,13 @@
 # @wigxel/react-tf-biome
 
+## 0.1.16
+
+### Patch Changes
+
+- moved @effect dependencies to package level
+- Updated dependencies
+  - @wigxel/cli-core@0.1.5
+
 ## 0.1.15
 
 ## 0.1.14
