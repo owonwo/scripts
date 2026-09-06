@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - chore/merge-crag-workflow
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
