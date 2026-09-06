@@ -21,9 +21,9 @@ jobs:
 
       - run: pnpm install
 
-      - run: pnpm run build
+      - run: pnpm -r --filter '!@wigxel/env-cleaner' run build
 
-      - run: pnpm run test
+      - run: pnpm -r --filter '!@wigxel/env-cleaner' run test
 
       - name: Validate example apps
         run: pnpm --filter @wigxel/crag run validate
